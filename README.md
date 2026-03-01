@@ -64,6 +64,7 @@ MotoMileage is a fully offline bike fuel tracker built with Flutter, GetX, and S
 - Local Backup & Restore
   - Backup all keys into one JSON file (share sheet)
   - Restore from JSON text input
+  - Debug action to replace local data with realistic demo dataset
 
 - Settings
   - Currency symbol

@@ -11,6 +11,7 @@ import '../repositories/maintenance_repository.dart';
 import '../repositories/settings_repository.dart';
 import '../services/backup_service.dart';
 import '../services/csv_export_service.dart';
+import '../services/demo_data_service.dart';
 import '../services/local_storage_service.dart';
 
 class InitialBinding extends Bindings {
@@ -32,6 +33,10 @@ class InitialBinding extends Bindings {
       fenix: true,
     );
     Get.lazyPut(() => CsvExportService(), fenix: true);
+    Get.lazyPut(
+      () => DemoDataService(Get.find<LocalStorageService>()),
+      fenix: true,
+    );
 
     Get.put(SettingsController(Get.find<SettingsRepository>()), permanent: true);
     Get.put(

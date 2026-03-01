@@ -15,7 +15,12 @@ class SettingsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    reload();
+  }
+
+  void reload() {
     settings.value = _repository.loadSettings();
+    Get.changeThemeMode(settings.value.darkMode ? ThemeMode.dark : ThemeMode.light);
   }
 
   Future<void> updateSettings(AppSettings next) async {

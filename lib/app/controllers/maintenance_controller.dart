@@ -19,7 +19,11 @@ class MaintenanceController extends GetxController {
   void onInit() {
     super.onInit();
     ever<String?>(_bikeController.activeBikeId, _loadForBike);
-    _loadForBike(_bikeController.activeBikeId.value);
+    reloadActiveBike();
+  }
+
+  Future<void> reloadActiveBike() {
+    return _loadForBike(_bikeController.activeBikeId.value);
   }
 
   Future<void> _loadForBike(String? bikeId) async {

@@ -6,10 +6,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../constants.dart';
+import '../controllers/bike_controller.dart';
 import '../controllers/fuel_controller.dart';
+import '../controllers/maintenance_controller.dart';
 import '../controllers/settings_controller.dart';
 import '../services/backup_service.dart';
 import '../services/csv_export_service.dart';
+import '../services/demo_data_service.dart';
 
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
@@ -17,8 +20,11 @@ class SettingsView extends GetView<SettingsController> {
   @override
   Widget build(BuildContext context) {
     final fuelController = Get.find<FuelController>();
+    final bikeController = Get.find<BikeController>();
+    final maintenanceController = Get.find<MaintenanceController>();
     final backupService = Get.find<BackupService>();
     final csvService = Get.find<CsvExportService>();
+    final demoDataService = Get.find<DemoDataService>();
 
     return Obx(() {
       final current = controller.settings.value;
@@ -187,12 +193,52 @@ class SettingsView extends GetView<SettingsController> {
 
               try {
                 await backupService.restoreBackupJson(textController.text);
-                Get.snackbar('Restored', 'Restart app state by relaunching app.');
+                controller.reload();
+                await bikeController.reload();
+                await fuelController.reloadActiveBike();
+                await maintenanceController.reloadActiveBike();
+                Get.snackbar('Restored', 'Backup restored successfully.');
               } catch (_) {
                 Get.snackbar('Error', 'Backup JSON is invalid.');
               }
             },
             child: const Text('Restore From JSON Text'),
+          ),
+          const SizedBox(height: 8),
+          FilledButton(
+            onPressed: () async {
+              final shouldPopulate = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Load Demo Data'),
+                  content: const Text(
+                    'This will replace your current local data with demo entries.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text('Replace & Load'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (shouldPopulate != true) {
+                return;
+              }
+
+              await demoDataService.populateDemoData();
+              controller.reload();
+              await bikeController.reload();
+              await fuelController.reloadActiveBike();
+              await maintenanceController.reloadActiveBike();
+              Get.snackbar('Demo Ready', 'Sample data loaded for testing.');
+            },
+            child: const Text('Debug: Load Demo Data'),
           ),
         ],
       );

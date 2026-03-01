@@ -27,6 +27,10 @@ class BikeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    reload();
+  }
+
+  Future<void> reload() async {
     bikes.assignAll(_repository.loadBikes());
     final persistedActiveId = _repository.getActiveBikeId();
 
@@ -38,8 +42,12 @@ class BikeController extends GetxController {
 
     if (bikes.isNotEmpty) {
       activeBikeId.value = bikes.first.id;
-      _repository.setActiveBikeId(activeBikeId.value);
+      await _repository.setActiveBikeId(activeBikeId.value);
+      return;
     }
+
+    activeBikeId.value = null;
+    await _repository.setActiveBikeId(null);
   }
 
   Future<void> addBike({
