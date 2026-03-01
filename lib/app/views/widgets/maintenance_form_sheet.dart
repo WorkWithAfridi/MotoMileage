@@ -59,7 +59,7 @@ class _MaintenanceFormSheetState extends State<MaintenanceFormSheet> {
                     .map(
                       (type) => DropdownMenuItem(
                         value: type,
-                        child: Text(type.name),
+                        child: Text(type.label),
                       ),
                     )
                     .toList(),

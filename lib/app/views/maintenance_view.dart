@@ -56,7 +56,7 @@ class MaintenanceView extends GetView<MaintenanceController> {
                       children: [
                         Expanded(
                           child: Text(
-                            entry.customType ?? entry.type.name,
+                            entry.customType ?? entry.type.label,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),

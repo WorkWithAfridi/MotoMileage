@@ -14,7 +14,42 @@ enum FuelUnit { liters, gallons }
 
 enum FuelType { petrol, diesel, octane, electric, custom }
 
-enum MaintenanceType { oilChange, chainLube, custom }
+enum MaintenanceType {
+  oilChange,
+  chainLube,
+  brakeService,
+  airFilter,
+  sparkPlug,
+  coolantFlush,
+  tireChange,
+  batteryService,
+  custom,
+}
+
+extension MaintenanceTypeX on MaintenanceType {
+  String get label {
+    switch (this) {
+      case MaintenanceType.oilChange:
+        return 'Oil Change';
+      case MaintenanceType.chainLube:
+        return 'Chain Lube';
+      case MaintenanceType.brakeService:
+        return 'Brake Service';
+      case MaintenanceType.airFilter:
+        return 'Air Filter';
+      case MaintenanceType.sparkPlug:
+        return 'Spark Plug';
+      case MaintenanceType.coolantFlush:
+        return 'Coolant Flush';
+      case MaintenanceType.tireChange:
+        return 'Tire Change';
+      case MaintenanceType.batteryService:
+        return 'Battery Service';
+      case MaintenanceType.custom:
+        return 'Custom';
+    }
+  }
+}
 
 enum AppThemePreset {
   midnightTeal,
