@@ -13,6 +13,7 @@ import '../controllers/settings_controller.dart';
 import '../services/backup_service.dart';
 import '../services/csv_export_service.dart';
 import '../services/demo_data_service.dart';
+import '../services/local_storage_service.dart';
 
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
@@ -25,6 +26,7 @@ class SettingsView extends GetView<SettingsController> {
     final backupService = Get.find<BackupService>();
     final csvService = Get.find<CsvExportService>();
     final demoDataService = Get.find<DemoDataService>();
+    final storageService = Get.find<LocalStorageService>();
 
     return Obx(() {
       final current = controller.settings.value;
@@ -262,6 +264,47 @@ class SettingsView extends GetView<SettingsController> {
               Get.snackbar('Demo Ready', 'Sample data loaded for testing.');
             },
             child: const Text('Debug: Load Demo Data'),
+          ),
+          const SizedBox(height: 8),
+          FilledButton.tonal(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+              foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+            ),
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Reset All Data'),
+                  content: const Text(
+                    'This will permanently delete all bikes, fuel logs, maintenance logs, and settings from this device.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text('Reset'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed != true) {
+                return;
+              }
+
+              await storageService.clear();
+              controller.reload();
+              await bikeController.reload();
+              await fuelController.reloadActiveBike();
+              await maintenanceController.reloadActiveBike();
+
+              Get.snackbar('Data Reset', 'All local app data has been removed.');
+            },
+            child: const Text('Reset All Data'),
           ),
         ],
       );
