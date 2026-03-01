@@ -278,6 +278,22 @@ class SettingsView extends GetView<SettingsController> {
         return 'Forest Mist';
       case AppThemePreset.sunsetSand:
         return 'Sunset Sand';
+      case AppThemePreset.royalIndigo:
+        return 'Royal Indigo (Dark)';
+      case AppThemePreset.roseBlush:
+        return 'Rose Blush';
+      case AppThemePreset.volcanicAsh:
+        return 'Volcanic Ash (Dark)';
+      case AppThemePreset.arcticBlue:
+        return 'Arctic Blue';
+      case AppThemePreset.emeraldNight:
+        return 'Emerald Night (Dark)';
+      case AppThemePreset.citrusPop:
+        return 'Citrus Pop';
+      case AppThemePreset.lavenderHaze:
+        return 'Lavender Haze';
+      case AppThemePreset.graphiteMono:
+        return 'Graphite Mono (Dark)';
     }
   }
 }

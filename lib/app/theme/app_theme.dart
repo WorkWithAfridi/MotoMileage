@@ -29,6 +29,54 @@ class AppTheme {
           brightness: Brightness.light,
           cardColor: const Color(0xFFFFF7F1),
         );
+      case AppThemePreset.royalIndigo:
+        return _buildTheme(
+          seed: const Color(0xFF4F46E5),
+          brightness: Brightness.dark,
+          cardColor: const Color(0xFF1E1B4B),
+        );
+      case AppThemePreset.roseBlush:
+        return _buildTheme(
+          seed: const Color(0xFFDB2777),
+          brightness: Brightness.light,
+          cardColor: const Color(0xFFFFF1F6),
+        );
+      case AppThemePreset.volcanicAsh:
+        return _buildTheme(
+          seed: const Color(0xFF7C2D12),
+          brightness: Brightness.dark,
+          cardColor: const Color(0xFF292524),
+        );
+      case AppThemePreset.arcticBlue:
+        return _buildTheme(
+          seed: const Color(0xFF0EA5E9),
+          brightness: Brightness.light,
+          cardColor: const Color(0xFFF0F9FF),
+        );
+      case AppThemePreset.emeraldNight:
+        return _buildTheme(
+          seed: const Color(0xFF059669),
+          brightness: Brightness.dark,
+          cardColor: const Color(0xFF022C22),
+        );
+      case AppThemePreset.citrusPop:
+        return _buildTheme(
+          seed: const Color(0xFFCA8A04),
+          brightness: Brightness.light,
+          cardColor: const Color(0xFFFEFCE8),
+        );
+      case AppThemePreset.lavenderHaze:
+        return _buildTheme(
+          seed: const Color(0xFF8B5CF6),
+          brightness: Brightness.light,
+          cardColor: const Color(0xFFF5F3FF),
+        );
+      case AppThemePreset.graphiteMono:
+        return _buildTheme(
+          seed: const Color(0xFF525252),
+          brightness: Brightness.dark,
+          cardColor: const Color(0xFF171717),
+        );
     }
   }
 
