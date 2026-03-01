@@ -1,6 +1,6 @@
 {
-    "name": "motomileage",
-    "short_name": "motomileage",
+    "name": "Moto Mileage",
+    "short_name": "Moto Mileage",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

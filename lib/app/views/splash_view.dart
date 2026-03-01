@@ -25,7 +25,7 @@ class SplashView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'MotoMileage',
+              'Moto Mileage',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 32,

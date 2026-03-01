@@ -160,7 +160,7 @@ class SettingsView extends GetView<SettingsController> {
               await SharePlus.instance.share(
                 ShareParams(
                   files: [XFile(file.path)],
-                  text: 'MotoMileage fuel logs CSV export',
+                  text: 'Moto Mileage fuel logs CSV export',
                 ),
               );
             },
@@ -176,7 +176,7 @@ class SettingsView extends GetView<SettingsController> {
               await SharePlus.instance.share(
                 ShareParams(
                   files: [XFile(file.path)],
-                  text: 'MotoMileage backup JSON',
+                  text: 'Moto Mileage backup JSON',
                 ),
               );
             },

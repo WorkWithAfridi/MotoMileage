@@ -45,6 +45,13 @@ class _OnboardingViewState extends State<OnboardingView> {
       icon: Icons.build_circle,
       color: Color(0xFF22577A),
     ),
+    _OnboardingPageData(
+      title: 'Try Demo Data',
+      description:
+          'From Settings, you can load a demo dataset to explore the app quickly. You can also reset all local data anytime.',
+      icon: Icons.dataset_outlined,
+      color: Color(0xFFB85C38),
+    ),
   ];
 
   @override

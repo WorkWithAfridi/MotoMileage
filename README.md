@@ -1,6 +1,6 @@
-# MotoMileage
+# Moto Mileage
 
-MotoMileage is an offline-first bike fuel and maintenance tracker built with Flutter.
+Moto Mileage is an offline-first bike fuel and maintenance tracker built with Flutter.
 It is designed for fast daily logging, meaningful insights, and zero cloud dependency.
 
 ## Highlights

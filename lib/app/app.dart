@@ -15,7 +15,7 @@ class MotoMileageApp extends StatelessWidget {
     return Obx(() {
       final theme = AppTheme.fromPreset(settingsController.settings.value.themePreset);
       return GetMaterialApp(
-        title: 'MotoMileage',
+        title: 'Moto Mileage',
         debugShowCheckedModeBanner: false,
         theme: theme,
         darkTheme: theme,
