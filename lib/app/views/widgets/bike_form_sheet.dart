@@ -60,31 +60,31 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(widget.bike == null ? 'Add Bike' : 'Edit Bike', style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Bike Name'),
                 validator: (value) => (value == null || value.trim().isEmpty) ? 'Required' : null,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
               TextFormField(
                 controller: _manufacturerController,
                 decoration: const InputDecoration(labelText: 'Manufacturer'),
                 validator: (value) => (value == null || value.trim().isEmpty) ? 'Required' : null,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
               TextFormField(
                 controller: _modelController,
                 decoration: const InputDecoration(labelText: 'Model'),
                 validator: (value) => (value == null || value.trim().isEmpty) ? 'Required' : null,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
               TextFormField(
                 controller: _yearController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: 'Year (optional)'),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
               Row(
                 children: [
                   Expanded(
@@ -112,7 +112,7 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -152,7 +152,7 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                   child: Text(widget.bike == null ? 'Save Bike' : 'Update Bike'),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),

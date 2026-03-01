@@ -34,12 +34,7 @@ class _MaintenanceFormSheetState extends State<MaintenanceFormSheet> {
     final controller = Get.find<MaintenanceController>();
 
     return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
+      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 16),
       child: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -47,22 +42,12 @@ class _MaintenanceFormSheetState extends State<MaintenanceFormSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Add Maintenance',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
+              Text('Add Maintenance', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 22),
               DropdownButtonFormField<MaintenanceType>(
                 initialValue: _type,
                 decoration: const InputDecoration(labelText: 'Type'),
-                items: MaintenanceType.values
-                    .map(
-                      (type) => DropdownMenuItem(
-                        value: type,
-                        child: Text(type.label),
-                      ),
-                    )
-                    .toList(),
+                items: MaintenanceType.values.map((type) => DropdownMenuItem(value: type, child: Text(type.label))).toList(),
                 onChanged: (value) {
                   if (value == null) return;
                   setState(() => _type = value);
@@ -75,28 +60,27 @@ class _MaintenanceFormSheetState extends State<MaintenanceFormSheet> {
                   decoration: const InputDecoration(labelText: 'Custom Type'),
                 ),
               ],
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
               TextFormField(
                 controller: _odometerController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(labelText: 'Odometer'),
-                validator: (value) =>
-                    (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
+                validator: (value) => (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
               TextFormField(
                 controller: _nextDueController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(labelText: 'Next Due Odometer'),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
               TextFormField(
                 controller: _notesController,
                 minLines: 2,
                 maxLines: 4,
                 decoration: const InputDecoration(labelText: 'Notes'),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -107,14 +91,10 @@ class _MaintenanceFormSheetState extends State<MaintenanceFormSheet> {
 
                     await controller.addEntry(
                       type: _type,
-                      customType: _type == MaintenanceType.custom
-                          ? _customTypeController.text.trim()
-                          : null,
+                      customType: _type == MaintenanceType.custom ? _customTypeController.text.trim() : null,
                       odometer: double.parse(_odometerController.text.trim()),
                       notes: _notesController.text.trim(),
-                      nextDueOdometer: _nextDueController.text.trim().isEmpty
-                          ? null
-                          : double.parse(_nextDueController.text.trim()),
+                      nextDueOdometer: _nextDueController.text.trim().isEmpty ? null : double.parse(_nextDueController.text.trim()),
                     );
 
                     if (!context.mounted) return;
@@ -123,13 +103,10 @@ class _MaintenanceFormSheetState extends State<MaintenanceFormSheet> {
                   child: const Text('Save Maintenance'),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Close'),
-                ),
+                child: OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
               ),
             ],
           ),
