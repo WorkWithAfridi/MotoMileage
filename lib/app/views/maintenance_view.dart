@@ -19,9 +19,13 @@ class MaintenanceView extends GetView<MaintenanceController> {
       final colorScheme = Theme.of(context).colorScheme;
       final entries = controller.entries;
       final sortedFuel = fuelController.entriesNewestFirst;
-      final latestOdometer = sortedFuel.isEmpty ? 0.0 : sortedFuel.first.odometer;
+      final latestOdometer = sortedFuel.isEmpty
+          ? 0.0
+          : sortedFuel.first.odometer;
       final distanceUnit =
-          bikeController.activeBike?.distanceUnit == DistanceUnit.miles ? 'Miles' : 'KM';
+          bikeController.activeBike?.distanceUnit == DistanceUnit.miles
+          ? 'Miles'
+          : 'KM';
       final due = controller.dueEntries(latestOdometer);
 
       return ListView(
@@ -45,73 +49,89 @@ class MaintenanceView extends GetView<MaintenanceController> {
             const Card(
               child: ListTile(title: Text('No maintenance entries yet.')),
             ),
-          ...entries.map(
-            (entry) => Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            entry.customType ?? entry.type.label,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          onPressed: () => controller.deleteEntry(entry.id),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      AppFormatters.date(entry.date),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _metricChip(
-                          context,
-                          'Odometer',
-                          '${AppFormatters.number(entry.odometer)} $distanceUnit',
-                        ),
-                        _metricChip(
-                          context,
-                          'Next Due',
-                          entry.nextDueOdometer == null
-                              ? 'N/A'
-                              : '${AppFormatters.number(entry.nextDueOdometer!)} $distanceUnit',
-                        ),
-                        if (entry.nextDueOdometer != null)
-                          _metricChip(
-                            context,
-                            'Status',
-                            latestOdometer >= entry.nextDueOdometer!
-                                ? 'Due'
-                                : '${AppFormatters.number(entry.nextDueOdometer! - latestOdometer)} $distanceUnit left',
-                          ),
-                      ],
-                    ),
-                    if (entry.notes?.isNotEmpty ?? false) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        'Note: ${entry.notes}',
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ],
+          ...entries.asMap().entries.map((indexedEntry) {
+            final index = indexedEntry.key;
+            final entry = indexedEntry.value;
+            return TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: Duration(
+                milliseconds: 220 + (index * 22).clamp(0, 170),
+              ),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, child) => Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 12 * (1 - value)),
+                  child: child,
                 ),
               ),
-            ),
-          ),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              entry.customType ?? entry.type.label,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () => controller.deleteEntry(entry.id),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        AppFormatters.date(entry.date),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _metricChip(
+                            context,
+                            'Odometer',
+                            '${AppFormatters.number(entry.odometer)} $distanceUnit',
+                          ),
+                          _metricChip(
+                            context,
+                            'Next Due',
+                            entry.nextDueOdometer == null
+                                ? 'N/A'
+                                : '${AppFormatters.number(entry.nextDueOdometer!)} $distanceUnit',
+                          ),
+                          if (entry.nextDueOdometer != null)
+                            _metricChip(
+                              context,
+                              'Status',
+                              latestOdometer >= entry.nextDueOdometer!
+                                  ? 'Due'
+                                  : '${AppFormatters.number(entry.nextDueOdometer! - latestOdometer)} $distanceUnit left',
+                            ),
+                        ],
+                      ),
+                      if (entry.notes?.isNotEmpty ?? false) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Note: ${entry.notes}',
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
         ],
       );
     });

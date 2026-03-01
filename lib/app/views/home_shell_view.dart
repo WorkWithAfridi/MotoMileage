@@ -24,7 +24,12 @@ class HomeShellView extends StatefulWidget {
 class _HomeShellViewState extends State<HomeShellView> {
   int _index = 0;
 
-  static const _tabs = [DashboardView(), FuelLogsView(), MaintenanceView(), SettingsView()];
+  static const _tabs = [
+    DashboardView(),
+    FuelLogsView(),
+    MaintenanceView(),
+    SettingsView(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +50,14 @@ class _HomeShellViewState extends State<HomeShellView> {
                   child: DropdownButton<String>(
                     value: activeBike?.id,
                     hint: const Text('Select Bike'),
-                    items: bikeController.bikes.map((bike) => DropdownMenuItem(value: bike.id, child: Text('${bike.name} (${bike.model})'))).toList(),
+                    items: bikeController.bikes
+                        .map(
+                          (bike) => DropdownMenuItem(
+                            value: bike.id,
+                            child: Text('${bike.name} (${bike.model})'),
+                          ),
+                        )
+                        .toList(),
                     onChanged: bikeController.setActiveBike,
                   ),
                 )
@@ -53,8 +65,12 @@ class _HomeShellViewState extends State<HomeShellView> {
           actions: [
             IconButton(
               tooltip: 'Add Bike',
-              onPressed: () =>
-                  showModalBottomSheet<void>(context: context, showDragHandle: true, isScrollControlled: true, builder: (_) => const BikeFormSheet()),
+              onPressed: () => showModalBottomSheet<void>(
+                context: context,
+                showDragHandle: true,
+                isScrollControlled: true,
+                builder: (_) => const BikeFormSheet(),
+              ),
               icon: const Icon(Icons.add_circle_outline),
             ),
             if (activeBike != null)
@@ -73,75 +89,173 @@ class _HomeShellViewState extends State<HomeShellView> {
                     await bikeController.deleteBike(activeBike.id);
                   }
                 },
-                itemBuilder: (_) => const [PopupMenuItem(value: 'edit', child: Text('Edit Bike')), PopupMenuItem(value: 'delete', child: Text('Delete Bike'))],
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'edit', child: Text('Edit Bike')),
+                  PopupMenuItem(value: 'delete', child: Text('Delete Bike')),
+                ],
               ),
           ],
         ),
         body: !hasBikes
             ? Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('No bikes added yet.'),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: Get.width * 0.8,
-                      child: FilledButton(
-                        onPressed: () =>
-                            showModalBottomSheet<void>(context: context, showDragHandle: true, isScrollControlled: true, builder: (_) => const BikeFormSheet()),
-                        child: const Text('Add Your First Bike'),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'No bikes added yet.',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Add your first bike or load template data to explore the app quickly.',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 14),
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton(
+                                onPressed: () => showModalBottomSheet<void>(
+                                  context: context,
+                                  showDragHandle: true,
+                                  isScrollControlled: true,
+                                  builder: (_) => const BikeFormSheet(),
+                                ),
+                                child: const Text('Add Your First Bike'),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton(
+                                onPressed: () async {
+                                  await demoDataService.populateDemoData();
+                                  settingsController.reload();
+                                  await bikeController.reload();
+                                  await fuelController.reloadActiveBike();
+                                  await maintenanceController
+                                      .reloadActiveBike();
+                                  if (!context.mounted) return;
+                                  Get.snackbar(
+                                    'Demo Loaded',
+                                    'Template dataset is ready. Explore the app.',
+                                  );
+                                },
+                                child: const Text('Load Template'),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'You can also load/reset data later from Settings.',
+                              style: Theme.of(context).textTheme.bodySmall,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    SizedBox(height: 6),
-                    SizedBox(
-                      width: Get.width * 0.8,
-                      child: OutlinedButton(
-                        onPressed: () async {
-                          await demoDataService.populateDemoData();
-                          settingsController.reload();
-                          await bikeController.reload();
-                          await fuelController.reloadActiveBike();
-                          await maintenanceController.reloadActiveBike();
-                          if (!context.mounted) return;
-                          Get.snackbar('Demo Loaded', 'Template dataset is ready. Explore the app.');
-                        },
-                        child: const Text('Load Template'),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text('You can also load/reset data later from Settings.', style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
-                  ],
+                  ),
                 ),
               )
-            : _tabs[_index],
+            : AnimatedSwitcher(
+                duration: const Duration(milliseconds: 260),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  final offset = Tween<Offset>(
+                    begin: const Offset(0.02, 0),
+                    end: Offset.zero,
+                  ).animate(animation);
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(position: offset, child: child),
+                  );
+                },
+                child: KeyedSubtree(
+                  key: ValueKey(_index),
+                  child: _tabs[_index],
+                ),
+              ),
         floatingActionButton: !hasBikes
             ? null
-            : _index == 1
-            ? FloatingActionButton.extended(
-                onPressed: () =>
-                    showModalBottomSheet<void>(context: context, showDragHandle: true, isScrollControlled: true, builder: (_) => const FuelEntryFormSheet()),
-                icon: const Icon(Icons.local_gas_station_outlined),
-                label: const Text('Quick Add'),
-              )
-            : _index == 2
-            ? FloatingActionButton.extended(
-                onPressed: () =>
-                    showModalBottomSheet<void>(context: context, showDragHandle: true, isScrollControlled: true, builder: (_) => const MaintenanceFormSheet()),
-                icon: const Icon(Icons.build_circle_outlined),
-                label: const Text('Add Maintenance'),
-              )
-            : null,
+            : AnimatedSwitcher(
+                duration: const Duration(milliseconds: 220),
+                switchInCurve: Curves.easeOutBack,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (child, animation) {
+                  return ScaleTransition(
+                    scale: animation,
+                    child: FadeTransition(opacity: animation, child: child),
+                  );
+                },
+                child: _buildFabForIndex(context, index: _index),
+              ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (value) => setState(() => _index = value),
           destinations: const [
-            NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Dashboard'),
-            NavigationDestination(icon: Icon(Icons.local_gas_station_outlined), selectedIcon: Icon(Icons.local_gas_station), label: 'Fuel'),
-            NavigationDestination(icon: Icon(Icons.build_outlined), selectedIcon: Icon(Icons.build), label: 'Maintenance'),
-            NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'Settings'),
+            NavigationDestination(
+              icon: Icon(Icons.dashboard_outlined),
+              selectedIcon: Icon(Icons.dashboard),
+              label: 'Dashboard',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.local_gas_station_outlined),
+              selectedIcon: Icon(Icons.local_gas_station),
+              label: 'Fuel',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.build_outlined),
+              selectedIcon: Icon(Icons.build),
+              label: 'Maintenance',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.settings_outlined),
+              selectedIcon: Icon(Icons.settings),
+              label: 'Settings',
+            ),
           ],
         ),
       );
     });
+  }
+
+  Widget _buildFabForIndex(BuildContext context, {required int index}) {
+    if (index == 1) {
+      return FloatingActionButton.extended(
+        key: const ValueKey('fuelFab'),
+        onPressed: () => showModalBottomSheet<void>(
+          context: context,
+          showDragHandle: true,
+          isScrollControlled: true,
+          builder: (_) => const FuelEntryFormSheet(),
+        ),
+        icon: const Icon(Icons.local_gas_station_outlined),
+        label: const Text('Quick Add'),
+      );
+    }
+
+    if (index == 2) {
+      return FloatingActionButton.extended(
+        key: const ValueKey('maintenanceFab'),
+        onPressed: () => showModalBottomSheet<void>(
+          context: context,
+          showDragHandle: true,
+          isScrollControlled: true,
+          builder: (_) => const MaintenanceFormSheet(),
+        ),
+        icon: const Icon(Icons.build_circle_outlined),
+        label: const Text('Add Maintenance'),
+      );
+    }
+
+    return const SizedBox.shrink(key: ValueKey('noFab'));
   }
 }
