@@ -77,6 +77,20 @@ class AppTheme {
           brightness: Brightness.dark,
           cardColor: const Color(0xFF171717),
         );
+      case AppThemePreset.iconEmberTeal:
+        return _buildDualAccentTheme(
+          primary: const Color(0xFFED4C00),
+          secondary: const Color(0xFF14789A),
+          brightness: Brightness.light,
+          cardColor: const Color(0xFFFFF4EE),
+        );
+      case AppThemePreset.iconTealEmber:
+        return _buildDualAccentTheme(
+          primary: const Color(0xFF14789A),
+          secondary: const Color(0xFFED4C00),
+          brightness: Brightness.light,
+          cardColor: const Color(0xFFEEF8FB),
+        );
     }
   }
 
@@ -92,6 +106,35 @@ class AppTheme {
     );
 
     return base.copyWith(
+      appBarTheme: const AppBarTheme(centerTitle: false),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: cardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    );
+  }
+
+  static ThemeData _buildDualAccentTheme({
+    required Color primary,
+    required Color secondary,
+    required Brightness brightness,
+    required Color cardColor,
+  }) {
+    final base = ThemeData(
+      useMaterial3: true,
+      brightness: brightness,
+      colorScheme: ColorScheme.fromSeed(seedColor: primary, brightness: brightness),
+    );
+
+    final scheme = base.colorScheme.copyWith(
+      primary: primary,
+      secondary: secondary,
+      tertiary: secondary,
+    );
+
+    return base.copyWith(
+      colorScheme: scheme,
       appBarTheme: const AppBarTheme(centerTitle: false),
       cardTheme: CardThemeData(
         elevation: 0,

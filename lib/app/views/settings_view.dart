@@ -337,6 +337,10 @@ class SettingsView extends GetView<SettingsController> {
         return 'Lavender Haze';
       case AppThemePreset.graphiteMono:
         return 'Graphite Mono (Dark)';
+      case AppThemePreset.iconEmberTeal:
+        return 'Ember & Teal';
+      case AppThemePreset.iconTealEmber:
+        return 'Teal & Ember';
     }
   }
 }

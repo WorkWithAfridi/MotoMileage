@@ -29,4 +29,6 @@ enum AppThemePreset {
   citrusPop,
   lavenderHaze,
   graphiteMono,
+  iconEmberTeal,
+  iconTealEmber,
 }
