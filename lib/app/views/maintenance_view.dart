@@ -13,6 +13,7 @@ class MaintenanceView extends GetView<MaintenanceController> {
     final fuelController = Get.find<FuelController>();
 
     return Obx(() {
+      final colorScheme = Theme.of(context).colorScheme;
       final entries = controller.entries;
       final latestOdometer =
           fuelController.entries.isEmpty ? 0.0 : fuelController.entries.last.odometer;
@@ -23,10 +24,16 @@ class MaintenanceView extends GetView<MaintenanceController> {
         children: [
           if (due.isNotEmpty)
             Card(
-              color: Colors.orange.shade100,
+              color: colorScheme.tertiaryContainer,
               child: ListTile(
-                title: Text('${due.length} maintenance reminder(s)'),
-                subtitle: const Text('Your bike has crossed next due odometer.'),
+                title: Text(
+                  '${due.length} maintenance reminder(s)',
+                  style: TextStyle(color: colorScheme.onTertiaryContainer),
+                ),
+                subtitle: Text(
+                  'Your bike has crossed next due odometer.',
+                  style: TextStyle(color: colorScheme.onTertiaryContainer),
+                ),
               ),
             ),
           if (entries.isEmpty)

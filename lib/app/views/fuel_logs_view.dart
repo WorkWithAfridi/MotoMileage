@@ -14,7 +14,7 @@ class FuelLogsView extends GetView<FuelController> {
     final settings = Get.find<SettingsController>();
 
     return Obx(() {
-      final entries = controller.entries;
+      final entries = controller.entriesNewestFirst;
       final currency = settings.settings.value.currencySymbol;
       final precision = settings.settings.value.decimalPrecision;
 

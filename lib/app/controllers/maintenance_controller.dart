@@ -32,8 +32,8 @@ class MaintenanceController extends GetxController {
       return;
     }
 
-    final loaded = _repository.loadEntries(bikeId)
-      ..sort((a, b) => b.date.compareTo(a.date));
+    final loaded = _repository.loadEntries(bikeId);
+    _sortNewestFirst(loaded);
     entries.assignAll(loaded);
   }
 
@@ -50,19 +50,20 @@ class MaintenanceController extends GetxController {
       return;
     }
 
-    entries.insert(
-      0,
+    entries.add(
       MaintenanceEntry(
-        id: _uuid.v4(),
-        bikeId: bikeId,
-        type: type,
-        customType: customType,
-        odometer: odometer,
-        date: date ?? DateTime.now(),
-        notes: notes,
-        nextDueOdometer: nextDueOdometer,
-      ),
+      id: _uuid.v4(),
+      bikeId: bikeId,
+      type: type,
+      customType: customType,
+      odometer: odometer,
+      date: date ?? DateTime.now(),
+      notes: notes,
+      nextDueOdometer: nextDueOdometer,
+    ),
     );
+    _sortNewestFirst(entries);
+    entries.refresh();
 
     await _repository.saveEntries(bikeId, entries);
   }
@@ -74,6 +75,8 @@ class MaintenanceController extends GetxController {
     }
 
     entries.removeWhere((entry) => entry.id == id);
+    _sortNewestFirst(entries);
+    entries.refresh();
     await _repository.saveEntries(bikeId, entries);
   }
 
@@ -83,5 +86,15 @@ class MaintenanceController extends GetxController {
             entry.nextDueOdometer != null &&
             currentOdometer >= entry.nextDueOdometer!)
         .toList();
+  }
+
+  void _sortNewestFirst(List<MaintenanceEntry> items) {
+    items.sort((a, b) {
+      final byDate = b.date.compareTo(a.date);
+      if (byDate != 0) {
+        return byDate;
+      }
+      return b.odometer.compareTo(a.odometer);
+    });
   }
 }

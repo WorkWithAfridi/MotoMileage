@@ -45,6 +45,7 @@ class DashboardView extends GetView<DashboardController> {
     final settingsController = Get.find<SettingsController>();
 
     return Obx(() {
+      final colorScheme = Theme.of(context).colorScheme;
       final viewportWidth = MediaQuery.of(context).size.width - (_dashboardPagePadding * 2);
       final summaryCrossAxisCount = viewportWidth >= _summaryTripleColumnBreakpoint
           ? 3
@@ -162,8 +163,17 @@ class DashboardView extends GetView<DashboardController> {
         children: [
           if (fuelController.shouldShowRefillReminder)
             Card(
-              color: Colors.amber.shade100,
-              child: const ListTile(title: Text('Refill Reminder'), subtitle: Text('Your refill interval threshold has been crossed.')),
+              color: colorScheme.tertiaryContainer,
+              child: ListTile(
+                title: Text(
+                  'Refill Reminder',
+                  style: TextStyle(color: colorScheme.onTertiaryContainer),
+                ),
+                subtitle: Text(
+                  'Your refill interval threshold has been crossed.',
+                  style: TextStyle(color: colorScheme.onTertiaryContainer),
+                ),
+              ),
             ),
           _buildSegmentTitle(context, 'Performance'),
           const SizedBox(height: _dashboardSubsectionSpacing),

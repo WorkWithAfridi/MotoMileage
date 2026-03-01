@@ -17,6 +17,18 @@ class FuelController extends GetxController {
 
   final RxList<FuelLogEntry> entries = <FuelLogEntry>[].obs;
 
+  List<FuelLogEntry> get entriesNewestFirst {
+    final sorted = [...entries];
+    sorted.sort((a, b) {
+      final byDate = b.date.compareTo(a.date);
+      if (byDate != 0) {
+        return byDate;
+      }
+      return b.odometer.compareTo(a.odometer);
+    });
+    return sorted;
+  }
+
   String? get activeBikeId => _bikeController.activeBikeId.value;
 
   @override
