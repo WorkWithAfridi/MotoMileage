@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -30,6 +31,9 @@ const double _pieCenterSpaceRadius = 42;
 const double _pieSectionsSpace = 2;
 const double _pieAreaHorizontalPadding = 12;
 const double _pieAreaVerticalPadding = 6;
+const double _summaryGridSpacing = 8;
+const double _summarySingleColumnBreakpoint = 430;
+const double _summaryTripleColumnBreakpoint = 900;
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -42,6 +46,11 @@ class DashboardView extends GetView<DashboardController> {
 
     return Obx(() {
       final viewportWidth = MediaQuery.of(context).size.width - (_dashboardPagePadding * 2);
+      final summaryCrossAxisCount = viewportWidth >= _summaryTripleColumnBreakpoint
+          ? 3
+          : viewportWidth < _summarySingleColumnBreakpoint
+              ? 1
+              : 2;
       final currency = settingsController.settings.value.currencySymbol;
       final precision = settingsController.settings.value.decimalPrecision;
       final activeBike = bikeController.activeBike;
@@ -84,6 +93,59 @@ class DashboardView extends GetView<DashboardController> {
       }
       final fuelTypeSections = _fuelTypeSections(fuelTypeCostMap: fuelTypeCostMap, context: context);
       final fuelTypeLegend = _fuelTypeLegend(fuelTypeCostMap: fuelTypeCostMap);
+      final summaryCards = <Widget>[
+        SummaryCard(
+          title: 'Average Mileage',
+          value: '${AppFormatters.number(controller.averageMileage, precision: precision)} $mileageUnit',
+        ),
+        SummaryCard(
+          title: 'Latest Mileage',
+          value: '${AppFormatters.number(controller.latestMileage, precision: precision)} $mileageUnit',
+        ),
+        SummaryCard(
+          title: 'Total Distance',
+          value: '${AppFormatters.number(controller.totalDistance, precision: precision)} $distanceUnit',
+        ),
+        SummaryCard(
+          title: 'Fuel Consumed',
+          value: '${AppFormatters.number(controller.totalFuelConsumed, precision: precision)} $fuelUnit',
+        ),
+        SummaryCard(
+          title: 'Fuel Cost',
+          value: '$currency ${AppFormatters.number(controller.totalFuelCost, precision: precision)}',
+        ),
+        SummaryCard(
+          title: 'This Month',
+          value: '$currency ${AppFormatters.number(controller.thisMonthExpense, precision: precision)}',
+        ),
+        SummaryCard(title: 'Total Refills', value: controller.totalRefills.toString()),
+        SummaryCard(
+          title: 'Avg Refill Cost',
+          value: '$currency ${AppFormatters.number(controller.averageRefillCost, precision: precision)}',
+        ),
+        SummaryCard(
+          title: 'Avg Trip Distance',
+          value: '${AppFormatters.number(controller.averageTripDistance, precision: precision)} $distanceUnit',
+        ),
+        SummaryCard(
+          title: 'Avg Cost / Distance',
+          value: '$costPerDistanceUnit ${AppFormatters.number(controller.averageCostPerDistance, precision: precision)}',
+        ),
+        SummaryCard(
+          title: 'Last 30 Days',
+          value: '$currency ${AppFormatters.number(controller.last30DaysExpense, precision: precision)}',
+        ),
+        SummaryCard(
+          title: '30D Change',
+          value: '${AppFormatters.number(controller.last30DaysExpenseChangePercent, precision: precision)}%',
+          subtitle: 'vs previous 30 days',
+        ),
+        SummaryCard(
+          title: 'Best / Worst',
+          value:
+              '${AppFormatters.number(controller.bestMileage, precision: precision)} / ${AppFormatters.number(controller.worstMileage, precision: precision)} $mileageUnit',
+        ),
+      ];
 
       return ListView(
         padding: const EdgeInsets.all(_dashboardPagePadding),
@@ -93,66 +155,16 @@ class DashboardView extends GetView<DashboardController> {
               color: Colors.amber.shade100,
               child: const ListTile(title: Text('Refill Reminder'), subtitle: Text('Your refill interval threshold has been crossed.')),
             ),
-          GridView.count(
-            crossAxisCount: 2,
+          MasonryGridView.builder(
+            gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: summaryCrossAxisCount,
+            ),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 1.7,
-            children: [
-              SummaryCard(
-                title: 'Average Mileage',
-                value: '${AppFormatters.number(controller.averageMileage, precision: precision)} $mileageUnit',
-              ),
-              SummaryCard(
-                title: 'Latest Mileage',
-                value: '${AppFormatters.number(controller.latestMileage, precision: precision)} $mileageUnit',
-              ),
-              SummaryCard(
-                title: 'Total Distance',
-                value: '${AppFormatters.number(controller.totalDistance, precision: precision)} $distanceUnit',
-              ),
-              SummaryCard(
-                title: 'Fuel Consumed',
-                value: '${AppFormatters.number(controller.totalFuelConsumed, precision: precision)} $fuelUnit',
-              ),
-              SummaryCard(
-                title: 'Fuel Cost',
-                value: '$currency ${AppFormatters.number(controller.totalFuelCost, precision: precision)}',
-              ),
-              SummaryCard(
-                title: 'This Month',
-                value: '$currency ${AppFormatters.number(controller.thisMonthExpense, precision: precision)}',
-              ),
-              SummaryCard(title: 'Total Refills', value: controller.totalRefills.toString()),
-              SummaryCard(
-                title: 'Avg Refill Cost',
-                value: '$currency ${AppFormatters.number(controller.averageRefillCost, precision: precision)}',
-              ),
-              SummaryCard(
-                title: 'Avg Trip Distance',
-                value: '${AppFormatters.number(controller.averageTripDistance, precision: precision)} $distanceUnit',
-              ),
-              SummaryCard(
-                title: 'Avg Cost / Distance',
-                value: '$costPerDistanceUnit ${AppFormatters.number(controller.averageCostPerDistance, precision: precision)}',
-              ),
-              SummaryCard(
-                title: 'Last 30 Days',
-                value: '$currency ${AppFormatters.number(controller.last30DaysExpense, precision: precision)}',
-              ),
-              SummaryCard(
-                title: '30D Change',
-                value: '${AppFormatters.number(controller.last30DaysExpenseChangePercent, precision: precision)}%',
-                subtitle: 'vs previous 30 days',
-              ),
-              SummaryCard(
-                title: 'Best / Worst',
-                value:
-                    '${AppFormatters.number(controller.bestMileage, precision: precision)} / ${AppFormatters.number(controller.worstMileage, precision: precision)} $mileageUnit',
-              ),
-            ],
+            mainAxisSpacing: _summaryGridSpacing,
+            crossAxisSpacing: _summaryGridSpacing,
+            itemCount: summaryCards.length,
+            itemBuilder: (context, index) => summaryCards[index],
           ),
           const SizedBox(height: _dashboardSectionSpacing),
           _buildLineChartSection(

@@ -20,12 +20,27 @@ class SummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: Theme.of(context).textTheme.labelMedium),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.labelMedium,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
             const SizedBox(height: 6),
-            Text(value, style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
             if (subtitle != null) ...[
               const SizedBox(height: 4),
-              Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                subtitle!,
+                style: Theme.of(context).textTheme.bodySmall,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ],
         ),
