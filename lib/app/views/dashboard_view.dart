@@ -10,6 +10,25 @@ import '../models/fuel_log_entry.dart';
 import '../utils/formatters.dart';
 import 'widgets/summary_card.dart';
 
+const double _dashboardPagePadding = 12;
+const double _dashboardSectionSpacing = 12;
+const double _dashboardSubsectionSpacing = 8;
+const double _chartHeight = 300;
+const double _chartCardPadding = 12;
+const double _chartAxisNameSize = 18;
+const double _lineYAxisReservedSize = 30;
+const double _barYAxisReservedSize = 30;
+const double _chartXAxisReservedSize = 30;
+const double _chartAxisLabelSpace = 6;
+const double _chartXLabelTopPadding = 6;
+const double _lineChartPixelsPerPoint = 56;
+const double _barChartPixelsPerPoint = 68;
+const double _pieSectionRadius = 70;
+const double _pieCenterSpaceRadius = 42;
+const double _pieSectionsSpace = 2;
+const double _pieAreaHorizontalPadding = 12;
+const double _pieAreaVerticalPadding = 6;
+
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
 
@@ -19,15 +38,25 @@ class DashboardView extends GetView<DashboardController> {
     final settingsController = Get.find<SettingsController>();
 
     return Obx(() {
-      final viewportWidth = MediaQuery.of(context).size.width - 24;
+      final viewportWidth = MediaQuery.of(context).size.width - (_dashboardPagePadding * 2);
       final currency = settingsController.settings.value.currencySymbol;
       final precision = settingsController.settings.value.decimalPrecision;
-      final mileageEntries = fuelController.entries.where((entry) => entry.mileage != null && entry.mileage! > 0).toList()
-        ..sort((a, b) => a.date.compareTo(b.date));
+      final sortedEntries = [...fuelController.entries]..sort((a, b) => a.date.compareTo(b.date));
+
+      final mileageEntries = sortedEntries.where((entry) => (entry.mileage ?? 0) > 0).toList();
       final mileageSpots = List<FlSpot>.generate(mileageEntries.length, (index) => FlSpot(index.toDouble(), mileageEntries[index].mileage!));
 
+      final quantityEntries = sortedEntries.where((entry) => entry.fuelQuantity > 0).toList();
+      final quantitySpots = List<FlSpot>.generate(quantityEntries.length, (index) => FlSpot(index.toDouble(), quantityEntries[index].fuelQuantity));
+
+      final costPerDistanceEntries = sortedEntries.where((entry) => (entry.costPerDistance ?? 0) > 0).toList();
+      final costPerDistanceSpots = List<FlSpot>.generate(
+        costPerDistanceEntries.length,
+        (index) => FlSpot(index.toDouble(), costPerDistanceEntries[index].costPerDistance!),
+      );
+
       final monthlyExpense = <DateTime, double>{};
-      for (final entry in fuelController.entries) {
+      for (final entry in sortedEntries) {
         final month = DateTime(entry.date.year, entry.date.month);
         monthlyExpense[month] = (monthlyExpense[month] ?? 0) + entry.totalCost;
       }
@@ -39,13 +68,17 @@ class DashboardView extends GetView<DashboardController> {
           barRods: [BarChartRodData(toY: monthlyExpense[expenseMonths[index]] ?? 0)],
         ),
       );
-      final lineChartWidth = _chartWidth(pointCount: mileageSpots.length, minWidth: viewportWidth, pixelsPerPoint: 56);
-      final barChartWidth = _chartWidth(pointCount: expenseBars.length, minWidth: viewportWidth, pixelsPerPoint: 68);
-      final lineMinY = _lineMinY(mileageSpots);
-      final lineMaxY = _lineMaxY(mileageSpots);
+
+      final fuelTypeCostMap = <String, double>{};
+      for (final entry in sortedEntries) {
+        final type = entry.fuelType?.name.toUpperCase() ?? 'UNKNOWN';
+        fuelTypeCostMap[type] = (fuelTypeCostMap[type] ?? 0) + entry.totalCost;
+      }
+      final fuelTypeSections = _fuelTypeSections(fuelTypeCostMap: fuelTypeCostMap, context: context);
+      final fuelTypeLegend = _fuelTypeLegend(fuelTypeCostMap: fuelTypeCostMap);
 
       return ListView(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(_dashboardPagePadding),
         children: [
           if (fuelController.shouldShowRefillReminder)
             Card(
@@ -65,6 +98,10 @@ class DashboardView extends GetView<DashboardController> {
                 value: AppFormatters.number(controller.averageMileage, precision: precision),
               ),
               SummaryCard(
+                title: 'Latest Mileage',
+                value: AppFormatters.number(controller.latestMileage, precision: precision),
+              ),
+              SummaryCard(
                 title: 'Total Distance',
                 value: AppFormatters.number(controller.totalDistance, precision: precision),
               ),
@@ -80,6 +117,28 @@ class DashboardView extends GetView<DashboardController> {
                 title: 'This Month',
                 value: '$currency ${AppFormatters.number(controller.thisMonthExpense, precision: precision)}',
               ),
+              SummaryCard(title: 'Total Refills', value: controller.totalRefills.toString()),
+              SummaryCard(
+                title: 'Avg Refill Cost',
+                value: '$currency ${AppFormatters.number(controller.averageRefillCost, precision: precision)}',
+              ),
+              SummaryCard(
+                title: 'Avg Trip Distance',
+                value: AppFormatters.number(controller.averageTripDistance, precision: precision),
+              ),
+              SummaryCard(
+                title: 'Avg Cost / Distance',
+                value: '$currency ${AppFormatters.number(controller.averageCostPerDistance, precision: precision)}',
+              ),
+              SummaryCard(
+                title: 'Last 30 Days',
+                value: '$currency ${AppFormatters.number(controller.last30DaysExpense, precision: precision)}',
+              ),
+              SummaryCard(
+                title: '30D Change',
+                value: '${AppFormatters.number(controller.last30DaysExpenseChangePercent, precision: precision)}%',
+                subtitle: 'vs previous 30 days',
+              ),
               SummaryCard(
                 title: 'Best / Worst',
                 value:
@@ -87,83 +146,30 @@ class DashboardView extends GetView<DashboardController> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text('Mileage Trend', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 300,
-            child: Card(
-              child: mileageSpots.isEmpty
-                  ? const Center(child: Text('Not enough data'))
-                  : Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: SizedBox(
-                          width: lineChartWidth,
-                          child: LineChart(
-                            LineChartData(
-                              minX: 0,
-                              maxX: mileageSpots.length > 1 ? (mileageSpots.length - 1).toDouble() : 1,
-                              minY: lineMinY,
-                              maxY: lineMaxY,
-                              borderData: FlBorderData(show: false),
-                              gridData: const FlGridData(show: true),
-                              titlesData: FlTitlesData(
-                                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                leftTitles: AxisTitles(
-                                  axisNameWidget: const Text('Mileage'),
-                                  axisNameSize: 18,
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    reservedSize: 36,
-                                    interval: _lineInterval(mileageSpots),
-                                    getTitlesWidget: (value, meta) => SideTitleWidget(
-                                      meta: meta,
-                                      space: 6,
-                                      child: Text(value.toStringAsFixed(0), style: Theme.of(context).textTheme.labelSmall),
-                                    ),
-                                  ),
-                                ),
-                                bottomTitles: AxisTitles(
-                                  axisNameWidget: const Text('Month'),
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    reservedSize: 30,
-                                    interval: 1,
-                                    getTitlesWidget: (value, meta) {
-                                      final label = _lineMonthLabel(value: value, mileageEntries: mileageEntries);
-                                      return Padding(
-                                        padding: const EdgeInsets.only(top: 6),
-                                        child: Text(label, style: Theme.of(context).textTheme.labelSmall),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              lineBarsData: [LineChartBarData(spots: mileageSpots, isCurved: true, dotData: const FlDotData(show: false), barWidth: 3)],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-            ),
+          const SizedBox(height: _dashboardSectionSpacing),
+          _buildLineChartSection(
+            context: context,
+            title: 'Mileage Trend',
+            spots: mileageSpots,
+            sourceEntries: mileageEntries,
+            yAxisTitle: 'Mileage',
+            minWidth: viewportWidth,
+            color: Theme.of(context).colorScheme.primary,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: _dashboardSectionSpacing),
           Text('Monthly Expense', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
+          const SizedBox(height: _dashboardSubsectionSpacing),
           SizedBox(
-            height: 300,
+            height: _chartHeight,
             child: Card(
               child: expenseBars.isEmpty
                   ? const Center(child: Text('Not enough data'))
                   : Padding(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(_chartCardPadding),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: SizedBox(
-                          width: barChartWidth,
+                          width: _chartWidth(pointCount: expenseBars.length, minWidth: viewportWidth, pixelsPerPoint: _barChartPixelsPerPoint),
                           child: BarChart(
                             BarChartData(
                               minY: 0,
@@ -175,14 +181,14 @@ class DashboardView extends GetView<DashboardController> {
                                 topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                                 leftTitles: AxisTitles(
                                   axisNameWidget: const Text('Expense'),
-                                  axisNameSize: 18,
+                                  axisNameSize: _chartAxisNameSize,
                                   sideTitles: SideTitles(
                                     showTitles: true,
-                                    reservedSize: 36,
+                                    reservedSize: _barYAxisReservedSize,
                                     interval: _barInterval(expenseBars),
                                     getTitlesWidget: (value, meta) => SideTitleWidget(
                                       meta: meta,
-                                      space: 6,
+                                      space: _chartAxisLabelSpace,
                                       child: Text(value.toStringAsFixed(0), style: Theme.of(context).textTheme.labelSmall),
                                     ),
                                   ),
@@ -191,7 +197,7 @@ class DashboardView extends GetView<DashboardController> {
                                   axisNameWidget: const Text('Month'),
                                   sideTitles: SideTitles(
                                     showTitles: true,
-                                    reservedSize: 30,
+                                    reservedSize: _chartXAxisReservedSize,
                                     getTitlesWidget: (value, meta) {
                                       final index = value.toInt();
                                       if (index < 0 || index >= expenseMonths.length) {
@@ -199,7 +205,7 @@ class DashboardView extends GetView<DashboardController> {
                                       }
                                       final label = DateFormat('MMM').format(expenseMonths[index]).toUpperCase();
                                       return Padding(
-                                        padding: const EdgeInsets.only(top: 6),
+                                        padding: const EdgeInsets.only(top: _chartXLabelTopPadding),
                                         child: Text(label, style: Theme.of(context).textTheme.labelSmall),
                                       );
                                     },
@@ -214,33 +220,212 @@ class DashboardView extends GetView<DashboardController> {
                     ),
             ),
           ),
+          const SizedBox(height: _dashboardSectionSpacing),
+          _buildLineChartSection(
+            context: context,
+            title: 'Fuel Quantity Trend',
+            spots: quantitySpots,
+            sourceEntries: quantityEntries,
+            yAxisTitle: 'Fuel Qty',
+            minWidth: viewportWidth,
+            color: Colors.teal,
+          ),
+          const SizedBox(height: _dashboardSectionSpacing),
+          _buildLineChartSection(
+            context: context,
+            title: 'Cost Per Distance Trend',
+            spots: costPerDistanceSpots,
+            sourceEntries: costPerDistanceEntries,
+            yAxisTitle: 'Cost/Dist',
+            minWidth: viewportWidth,
+            color: Colors.deepOrange,
+          ),
+          const SizedBox(height: _dashboardSectionSpacing),
+          Text('Fuel Type Cost Split', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: _dashboardSubsectionSpacing),
+          SizedBox(
+            height: _chartHeight,
+            child: Card(
+              clipBehavior: Clip.hardEdge,
+              child: fuelTypeSections.isEmpty
+                  ? const Center(child: Text('Not enough data'))
+                  : Padding(
+                      padding: const EdgeInsets.all(_chartCardPadding),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: _pieAreaHorizontalPadding, vertical: _pieAreaVerticalPadding),
+                              child: PieChart(
+                                PieChartData(sectionsSpace: _pieSectionsSpace, centerSpaceRadius: _pieCenterSpaceRadius, sections: fuelTypeSections),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: _dashboardSubsectionSpacing),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Wrap(
+                              spacing: 10,
+                              runSpacing: _dashboardSubsectionSpacing,
+                              children: fuelTypeLegend
+                                  .map(
+                                    (item) => Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 10,
+                                          height: 10,
+                                          decoration: BoxDecoration(color: item.value, shape: BoxShape.circle),
+                                        ),
+                                        const SizedBox(width: _chartAxisLabelSpace),
+                                        Text(item.key),
+                                      ],
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+          ),
         ],
       );
     });
   }
 
-  String _lineMonthLabel({required double value, required List<FuelLogEntry> mileageEntries}) {
+  Widget _buildLineChartSection({
+    required BuildContext context,
+    required String title,
+    required List<FlSpot> spots,
+    required List<FuelLogEntry> sourceEntries,
+    required String yAxisTitle,
+    required double minWidth,
+    required Color color,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: _dashboardSubsectionSpacing),
+        SizedBox(
+          height: _chartHeight,
+          child: Card(
+            child: spots.isEmpty
+                ? const Center(child: Text('Not enough data'))
+                : Padding(
+                    padding: const EdgeInsets.all(_chartCardPadding),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width: _chartWidth(pointCount: spots.length, minWidth: minWidth, pixelsPerPoint: _lineChartPixelsPerPoint),
+                        child: LineChart(
+                          LineChartData(
+                            minX: 0,
+                            maxX: spots.length > 1 ? (spots.length - 1).toDouble() : 1,
+                            minY: _lineMinY(spots),
+                            maxY: _lineMaxY(spots),
+                            borderData: FlBorderData(show: false),
+                            gridData: const FlGridData(show: true),
+                            titlesData: FlTitlesData(
+                              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              leftTitles: AxisTitles(
+                                axisNameWidget: Text(yAxisTitle),
+                                axisNameSize: _chartAxisNameSize,
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: _lineYAxisReservedSize,
+                                  interval: _lineInterval(spots),
+                                  getTitlesWidget: (value, meta) => SideTitleWidget(
+                                    meta: meta,
+                                    space: _chartAxisLabelSpace,
+                                    child: Text(value.toStringAsFixed(0), style: Theme.of(context).textTheme.labelSmall),
+                                  ),
+                                ),
+                              ),
+                              bottomTitles: AxisTitles(
+                                axisNameWidget: const Text('Month'),
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: _chartXAxisReservedSize,
+                                  interval: 1,
+                                  getTitlesWidget: (value, meta) {
+                                    final label = _entryMonthLabel(value: value, entries: sourceEntries);
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: _chartXLabelTopPadding),
+                                      child: Text(label, style: Theme.of(context).textTheme.labelSmall),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            lineBarsData: [LineChartBarData(spots: spots, isCurved: true, dotData: const FlDotData(show: false), barWidth: 3, color: color)],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _entryMonthLabel({required double value, required List<FuelLogEntry> entries}) {
     final index = value.toInt();
-    if (index < 0 || index >= mileageEntries.length || (value - index.toDouble()).abs() > 0.01) {
+    if (index < 0 || index >= entries.length || (value - index.toDouble()).abs() > 0.01) {
       return '';
     }
 
-    final current = mileageEntries[index].date;
+    final current = entries[index].date;
     final isFirst = index == 0;
-    final isLast = index == mileageEntries.length - 1;
+    final isLast = index == entries.length - 1;
 
     if (isFirst || isLast) {
       return DateFormat('MMM').format(current).toUpperCase();
     }
 
-    final previous = mileageEntries[index - 1].date;
+    final previous = entries[index - 1].date;
     final changedMonth = current.month != previous.month || current.year != previous.year;
-
     if (!changedMonth) {
       return '';
     }
 
     return DateFormat('MMM').format(current).toUpperCase();
+  }
+
+  List<PieChartSectionData> _fuelTypeSections({required Map<String, double> fuelTypeCostMap, required BuildContext context}) {
+    if (fuelTypeCostMap.isEmpty) {
+      return [];
+    }
+
+    final colors = [Colors.blue, Colors.orange, Colors.green, Colors.pink, Colors.indigo, Colors.brown];
+
+    final total = fuelTypeCostMap.values.fold(0.0, (sum, value) => sum + value);
+    final entries = fuelTypeCostMap.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+
+    return List<PieChartSectionData>.generate(entries.length, (index) {
+      final item = entries[index];
+      final percent = total <= 0 ? 0 : (item.value / total) * 100;
+      return PieChartSectionData(
+        color: colors[index % colors.length],
+        value: item.value,
+        radius: _pieSectionRadius,
+        title: '${percent.toStringAsFixed(0)}%',
+        titleStyle: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+      );
+    });
+  }
+
+  List<MapEntry<String, Color>> _fuelTypeLegend({required Map<String, double> fuelTypeCostMap}) {
+    if (fuelTypeCostMap.isEmpty) {
+      return [];
+    }
+    final colors = [Colors.blue, Colors.orange, Colors.green, Colors.pink, Colors.indigo, Colors.brown];
+    final entries = fuelTypeCostMap.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    return List<MapEntry<String, Color>>.generate(entries.length, (index) => MapEntry(entries[index].key, colors[index % colors.length]));
   }
 
   double _lineInterval(List<FlSpot> spots) {
