@@ -93,7 +93,7 @@ class DashboardView extends GetView<DashboardController> {
       }
       final fuelTypeSections = _fuelTypeSections(fuelTypeCostMap: fuelTypeCostMap, context: context);
       final fuelTypeLegend = _fuelTypeLegend(fuelTypeCostMap: fuelTypeCostMap);
-      final summaryCards = <Widget>[
+      final performanceCards = <Widget>[
         SummaryCard(
           title: 'Average Mileage',
           value: '${AppFormatters.number(controller.averageMileage, precision: precision)} $mileageUnit',
@@ -110,6 +110,15 @@ class DashboardView extends GetView<DashboardController> {
           title: 'Fuel Consumed',
           value: '${AppFormatters.number(controller.totalFuelConsumed, precision: precision)} $fuelUnit',
         ),
+        SummaryCard(title: 'Total Refills', value: controller.totalRefills.toString()),
+        SummaryCard(
+          title: 'Best / Worst',
+          value:
+              '${AppFormatters.number(controller.bestMileage, precision: precision)} / ${AppFormatters.number(controller.worstMileage, precision: precision)} $mileageUnit',
+        ),
+      ];
+
+      final costCards = <Widget>[
         SummaryCard(
           title: 'Fuel Cost',
           value: '$currency ${AppFormatters.number(controller.totalFuelCost, precision: precision)}',
@@ -118,14 +127,9 @@ class DashboardView extends GetView<DashboardController> {
           title: 'This Month',
           value: '$currency ${AppFormatters.number(controller.thisMonthExpense, precision: precision)}',
         ),
-        SummaryCard(title: 'Total Refills', value: controller.totalRefills.toString()),
         SummaryCard(
           title: 'Avg Refill Cost',
           value: '$currency ${AppFormatters.number(controller.averageRefillCost, precision: precision)}',
-        ),
-        SummaryCard(
-          title: 'Avg Trip Distance',
-          value: '${AppFormatters.number(controller.averageTripDistance, precision: precision)} $distanceUnit',
         ),
         SummaryCard(
           title: 'Avg Cost / Distance',
@@ -140,10 +144,16 @@ class DashboardView extends GetView<DashboardController> {
           value: '${AppFormatters.number(controller.last30DaysExpenseChangePercent, precision: precision)}%',
           subtitle: 'vs previous 30 days',
         ),
+      ];
+
+      final fuelProfileCards = <Widget>[
         SummaryCard(
-          title: 'Best / Worst',
-          value:
-              '${AppFormatters.number(controller.bestMileage, precision: precision)} / ${AppFormatters.number(controller.worstMileage, precision: precision)} $mileageUnit',
+          title: 'Fuel Consumed',
+          value: '${AppFormatters.number(controller.totalFuelConsumed, precision: precision)} $fuelUnit',
+        ),
+        SummaryCard(
+          title: 'Avg Trip Distance',
+          value: '${AppFormatters.number(controller.averageTripDistance, precision: precision)} $distanceUnit',
         ),
       ];
 
@@ -155,16 +165,11 @@ class DashboardView extends GetView<DashboardController> {
               color: Colors.amber.shade100,
               child: const ListTile(title: Text('Refill Reminder'), subtitle: Text('Your refill interval threshold has been crossed.')),
             ),
-          MasonryGridView.builder(
-            gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: summaryCrossAxisCount,
-            ),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: _summaryGridSpacing,
-            crossAxisSpacing: _summaryGridSpacing,
-            itemCount: summaryCards.length,
-            itemBuilder: (context, index) => summaryCards[index],
+          _buildSegmentTitle(context, 'Performance'),
+          const SizedBox(height: _dashboardSubsectionSpacing),
+          _buildSummarySegment(
+            crossAxisCount: summaryCrossAxisCount,
+            cards: performanceCards,
           ),
           const SizedBox(height: _dashboardSectionSpacing),
           _buildLineChartSection(
@@ -175,6 +180,13 @@ class DashboardView extends GetView<DashboardController> {
             yAxisTitle: 'Mileage',
             minWidth: viewportWidth,
             color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(height: _dashboardSectionSpacing),
+          _buildSegmentTitle(context, 'Cost & Spending'),
+          const SizedBox(height: _dashboardSubsectionSpacing),
+          _buildSummarySegment(
+            crossAxisCount: summaryCrossAxisCount,
+            cards: costCards,
           ),
           const SizedBox(height: _dashboardSectionSpacing),
           Text('Monthly Expense', style: Theme.of(context).textTheme.titleMedium),
@@ -243,22 +255,29 @@ class DashboardView extends GetView<DashboardController> {
           const SizedBox(height: _dashboardSectionSpacing),
           _buildLineChartSection(
             context: context,
-            title: 'Fuel Quantity Trend',
-            spots: quantitySpots,
-            sourceEntries: quantityEntries,
-            yAxisTitle: 'Fuel Qty',
-            minWidth: viewportWidth,
-            color: Colors.teal,
-          ),
-          const SizedBox(height: _dashboardSectionSpacing),
-          _buildLineChartSection(
-            context: context,
             title: 'Cost Per Distance Trend',
             spots: costPerDistanceSpots,
             sourceEntries: costPerDistanceEntries,
             yAxisTitle: 'Cost/Dist',
             minWidth: viewportWidth,
             color: Colors.deepOrange,
+          ),
+          const SizedBox(height: _dashboardSectionSpacing),
+          _buildSegmentTitle(context, 'Fuel Profile'),
+          const SizedBox(height: _dashboardSubsectionSpacing),
+          _buildSummarySegment(
+            crossAxisCount: summaryCrossAxisCount,
+            cards: fuelProfileCards,
+          ),
+          const SizedBox(height: _dashboardSectionSpacing),
+          _buildLineChartSection(
+            context: context,
+            title: 'Fuel Quantity Trend',
+            spots: quantitySpots,
+            sourceEntries: quantityEntries,
+            yAxisTitle: 'Fuel Qty',
+            minWidth: viewportWidth,
+            color: Colors.teal,
           ),
           const SizedBox(height: _dashboardSectionSpacing),
           Text('Fuel Type Cost Split', style: Theme.of(context).textTheme.titleMedium),
@@ -313,6 +332,32 @@ class DashboardView extends GetView<DashboardController> {
         ],
       );
     });
+  }
+
+  Widget _buildSummarySegment({
+    required int crossAxisCount,
+    required List<Widget> cards,
+  }) {
+    return MasonryGridView.builder(
+      gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+      ),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: _summaryGridSpacing,
+      crossAxisSpacing: _summaryGridSpacing,
+      itemCount: cards.length,
+      itemBuilder: (context, index) => cards[index],
+    );
+  }
+
+  Widget _buildSegmentTitle(BuildContext context, String title) {
+    return Text(
+      title,
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+    );
   }
 
   Widget _buildLineChartSection({
