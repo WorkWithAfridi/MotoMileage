@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../constants.dart';
+import '../controllers/bike_controller.dart';
 import '../controllers/dashboard_controller.dart';
 import '../controllers/fuel_controller.dart';
 import '../controllers/settings_controller.dart';
@@ -35,12 +37,18 @@ class DashboardView extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     final fuelController = Get.find<FuelController>();
+    final bikeController = Get.find<BikeController>();
     final settingsController = Get.find<SettingsController>();
 
     return Obx(() {
       final viewportWidth = MediaQuery.of(context).size.width - (_dashboardPagePadding * 2);
       final currency = settingsController.settings.value.currencySymbol;
       final precision = settingsController.settings.value.decimalPrecision;
+      final activeBike = bikeController.activeBike;
+      final distanceUnit = _distanceUnitLabel(activeBike?.distanceUnit);
+      final fuelUnit = _fuelUnitLabel(activeBike?.fuelUnit);
+      final mileageUnit = '$distanceUnit/$fuelUnit';
+      final costPerDistanceUnit = '$currency/$distanceUnit';
       final sortedEntries = [...fuelController.entries]..sort((a, b) => a.date.compareTo(b.date));
 
       final mileageEntries = sortedEntries.where((entry) => (entry.mileage ?? 0) > 0).toList();
@@ -95,19 +103,19 @@ class DashboardView extends GetView<DashboardController> {
             children: [
               SummaryCard(
                 title: 'Average Mileage',
-                value: AppFormatters.number(controller.averageMileage, precision: precision),
+                value: '${AppFormatters.number(controller.averageMileage, precision: precision)} $mileageUnit',
               ),
               SummaryCard(
                 title: 'Latest Mileage',
-                value: AppFormatters.number(controller.latestMileage, precision: precision),
+                value: '${AppFormatters.number(controller.latestMileage, precision: precision)} $mileageUnit',
               ),
               SummaryCard(
                 title: 'Total Distance',
-                value: AppFormatters.number(controller.totalDistance, precision: precision),
+                value: '${AppFormatters.number(controller.totalDistance, precision: precision)} $distanceUnit',
               ),
               SummaryCard(
                 title: 'Fuel Consumed',
-                value: AppFormatters.number(controller.totalFuelConsumed, precision: precision),
+                value: '${AppFormatters.number(controller.totalFuelConsumed, precision: precision)} $fuelUnit',
               ),
               SummaryCard(
                 title: 'Fuel Cost',
@@ -124,11 +132,11 @@ class DashboardView extends GetView<DashboardController> {
               ),
               SummaryCard(
                 title: 'Avg Trip Distance',
-                value: AppFormatters.number(controller.averageTripDistance, precision: precision),
+                value: '${AppFormatters.number(controller.averageTripDistance, precision: precision)} $distanceUnit',
               ),
               SummaryCard(
                 title: 'Avg Cost / Distance',
-                value: '$currency ${AppFormatters.number(controller.averageCostPerDistance, precision: precision)}',
+                value: '$costPerDistanceUnit ${AppFormatters.number(controller.averageCostPerDistance, precision: precision)}',
               ),
               SummaryCard(
                 title: 'Last 30 Days',
@@ -142,7 +150,7 @@ class DashboardView extends GetView<DashboardController> {
               SummaryCard(
                 title: 'Best / Worst',
                 value:
-                    '${AppFormatters.number(controller.bestMileage, precision: precision)} / ${AppFormatters.number(controller.worstMileage, precision: precision)}',
+                    '${AppFormatters.number(controller.bestMileage, precision: precision)} / ${AppFormatters.number(controller.worstMileage, precision: precision)} $mileageUnit',
               ),
             ],
           ),
@@ -475,5 +483,13 @@ class DashboardView extends GetView<DashboardController> {
     if (pointCount <= 1) return minWidth;
     final computed = pointCount * pixelsPerPoint;
     return computed < minWidth ? minWidth : computed;
+  }
+
+  String _distanceUnitLabel(DistanceUnit? unit) {
+    return unit == DistanceUnit.miles ? 'Miles' : 'KM';
+  }
+
+  String _fuelUnitLabel(FuelUnit? unit) {
+    return unit == FuelUnit.gallons ? 'Gallons' : 'Liters';
   }
 }
