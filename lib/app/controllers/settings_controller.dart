@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../constants.dart';
@@ -20,13 +19,11 @@ class SettingsController extends GetxController {
 
   void reload() {
     settings.value = _repository.loadSettings();
-    Get.changeThemeMode(settings.value.darkMode ? ThemeMode.dark : ThemeMode.light);
   }
 
   Future<void> updateSettings(AppSettings next) async {
     settings.value = next;
     await _repository.saveSettings(next);
-    Get.changeThemeMode(next.darkMode ? ThemeMode.dark : ThemeMode.light);
   }
 
   Future<void> updateCurrencySymbol(String symbol) {
@@ -51,7 +48,7 @@ class SettingsController extends GetxController {
     );
   }
 
-  Future<void> toggleDarkMode(bool enabled) {
-    return updateSettings(settings.value.copyWith(darkMode: enabled));
+  Future<void> updateThemePreset(AppThemePreset preset) {
+    return updateSettings(settings.value.copyWith(themePreset: preset));
   }
 }

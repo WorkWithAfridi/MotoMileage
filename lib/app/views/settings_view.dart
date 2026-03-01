@@ -114,12 +114,35 @@ class SettingsView extends GetView<SettingsController> {
                       }
                     },
                   ),
-                  const SizedBox(height: 8),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Dark Mode'),
-                    value: current.darkMode,
-                    onChanged: controller.toggleDarkMode,
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Theme', style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<AppThemePreset>(
+                    initialValue: current.themePreset,
+                    decoration: const InputDecoration(labelText: 'Color Theme'),
+                    items: AppThemePreset.values
+                        .map(
+                          (preset) => DropdownMenuItem(
+                            value: preset,
+                            child: Text(_themePresetLabel(preset)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        controller.updateThemePreset(value);
+                      }
+                    },
                   ),
                 ],
               ),
@@ -243,5 +266,18 @@ class SettingsView extends GetView<SettingsController> {
         ],
       );
     });
+  }
+
+  String _themePresetLabel(AppThemePreset preset) {
+    switch (preset) {
+      case AppThemePreset.midnightTeal:
+        return 'Midnight Teal (Dark)';
+      case AppThemePreset.oceanLight:
+        return 'Ocean Light';
+      case AppThemePreset.forestMist:
+        return 'Forest Mist';
+      case AppThemePreset.sunsetSand:
+        return 'Sunset Sand';
+    }
   }
 }

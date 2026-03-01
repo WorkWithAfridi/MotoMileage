@@ -7,7 +7,7 @@ class AppSettings {
     required this.defaultDistanceUnit,
     required this.defaultFuelUnit,
     required this.refillReminderInterval,
-    required this.darkMode,
+    required this.themePreset,
   });
 
   final String currencySymbol;
@@ -15,7 +15,7 @@ class AppSettings {
   final DistanceUnit defaultDistanceUnit;
   final FuelUnit defaultFuelUnit;
   final double refillReminderInterval;
-  final bool darkMode;
+  final AppThemePreset themePreset;
 
   static const defaults = AppSettings(
     currencySymbol: 'USD',
@@ -23,7 +23,7 @@ class AppSettings {
     defaultDistanceUnit: DistanceUnit.km,
     defaultFuelUnit: FuelUnit.liters,
     refillReminderInterval: 250,
-    darkMode: false,
+    themePreset: AppThemePreset.midnightTeal,
   );
 
   AppSettings copyWith({
@@ -32,7 +32,7 @@ class AppSettings {
     DistanceUnit? defaultDistanceUnit,
     FuelUnit? defaultFuelUnit,
     double? refillReminderInterval,
-    bool? darkMode,
+    AppThemePreset? themePreset,
   }) {
     return AppSettings(
       currencySymbol: currencySymbol ?? this.currencySymbol,
@@ -41,7 +41,7 @@ class AppSettings {
       defaultFuelUnit: defaultFuelUnit ?? this.defaultFuelUnit,
       refillReminderInterval:
           refillReminderInterval ?? this.refillReminderInterval,
-      darkMode: darkMode ?? this.darkMode,
+      themePreset: themePreset ?? this.themePreset,
     );
   }
 
@@ -52,11 +52,13 @@ class AppSettings {
       'defaultDistanceUnit': defaultDistanceUnit.name,
       'defaultFuelUnit': defaultFuelUnit.name,
       'refillReminderInterval': refillReminderInterval,
-      'darkMode': darkMode,
+      'themePreset': themePreset.name,
     };
   }
 
   factory AppSettings.fromMap(Map<String, dynamic> map) {
+    final legacyDarkMode = map['darkMode'] as bool?;
+
     return AppSettings(
       currencySymbol: map['currencySymbol'] as String? ?? defaults.currencySymbol,
       decimalPrecision: (map['decimalPrecision'] as num?)?.toInt() ??
@@ -72,7 +74,30 @@ class AppSettings {
       refillReminderInterval:
           (map['refillReminderInterval'] as num?)?.toDouble() ??
               defaults.refillReminderInterval,
-      darkMode: map['darkMode'] as bool? ?? defaults.darkMode,
+      themePreset: _parseThemePreset(
+        map['themePreset'] as String?,
+        legacyDarkMode: legacyDarkMode,
+      ),
     );
+  }
+
+  static AppThemePreset _parseThemePreset(
+    String? value, {
+    required bool? legacyDarkMode,
+  }) {
+    if (value != null) {
+      return AppThemePreset.values.firstWhere(
+        (item) => item.name == value,
+        orElse: () => defaults.themePreset,
+      );
+    }
+
+    if (legacyDarkMode != null) {
+      return legacyDarkMode
+          ? AppThemePreset.midnightTeal
+          : AppThemePreset.oceanLight;
+    }
+
+    return defaults.themePreset;
   }
 }

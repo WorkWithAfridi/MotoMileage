@@ -12,16 +12,16 @@ class MotoMileageApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingsController = Get.find<SettingsController>();
 
-    return Obx(
-      () => GetMaterialApp(
+    return Obx(() {
+      final theme = AppTheme.fromPreset(settingsController.settings.value.themePreset);
+      return GetMaterialApp(
         title: 'MotoMileage',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode:
-            settingsController.settings.value.darkMode ? ThemeMode.dark : ThemeMode.light,
+        theme: theme,
+        darkTheme: theme,
+        themeMode: ThemeMode.light,
         home: const StartupGateView(),
-      ),
-    );
+      );
+    });
   }
 }

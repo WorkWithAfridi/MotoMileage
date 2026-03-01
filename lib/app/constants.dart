@@ -15,3 +15,5 @@ enum FuelUnit { liters, gallons }
 enum FuelType { petrol, diesel, octane, electric, custom }
 
 enum MaintenanceType { oilChange, chainLube, custom }
+
+enum AppThemePreset { midnightTeal, oceanLight, forestMist, sunsetSand }
