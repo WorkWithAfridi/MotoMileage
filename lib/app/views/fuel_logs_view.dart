@@ -55,6 +55,7 @@ class FuelLogsView extends GetView<FuelController> {
                           if (value == 'edit') {
                             await showModalBottomSheet<void>(
                               context: context,
+                              showDragHandle: true,
                               isScrollControlled: true,
                               builder: (_) => FuelEntryFormSheet(entry: entry),
                             );

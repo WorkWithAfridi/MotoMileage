@@ -59,6 +59,7 @@ class _HomeShellViewState extends State<HomeShellView> {
               tooltip: 'Add Bike',
               onPressed: () => showModalBottomSheet<void>(
                 context: context,
+                showDragHandle: true,
                 isScrollControlled: true,
                 builder: (_) => const BikeFormSheet(),
               ),
@@ -70,6 +71,7 @@ class _HomeShellViewState extends State<HomeShellView> {
                   if (value == 'edit') {
                     await showModalBottomSheet<void>(
                       context: context,
+                      showDragHandle: true,
                       isScrollControlled: true,
                       builder: (_) => BikeFormSheet(bike: activeBike),
                     );
@@ -96,6 +98,7 @@ class _HomeShellViewState extends State<HomeShellView> {
                     FilledButton(
                       onPressed: () => showModalBottomSheet<void>(
                         context: context,
+                        showDragHandle: true,
                         isScrollControlled: true,
                         builder: (_) => const BikeFormSheet(),
                       ),
@@ -111,6 +114,7 @@ class _HomeShellViewState extends State<HomeShellView> {
                 ? FloatingActionButton.extended(
                     onPressed: () => showModalBottomSheet<void>(
                       context: context,
+                      showDragHandle: true,
                       isScrollControlled: true,
                       builder: (_) => const FuelEntryFormSheet(),
                     ),
@@ -121,6 +125,7 @@ class _HomeShellViewState extends State<HomeShellView> {
                     ? FloatingActionButton.extended(
                         onPressed: () => showModalBottomSheet<void>(
                           context: context,
+                          showDragHandle: true,
                           isScrollControlled: true,
                           builder: (_) => const MaintenanceFormSheet(),
                         ),

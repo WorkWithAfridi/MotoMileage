@@ -50,8 +50,8 @@ class DashboardView extends GetView<DashboardController> {
       final summaryCrossAxisCount = viewportWidth >= _summaryTripleColumnBreakpoint
           ? 3
           : viewportWidth < _summarySingleColumnBreakpoint
-              ? 1
-              : 2;
+          ? 1
+          : 2;
       final currency = settingsController.settings.value.currencySymbol;
       final precision = settingsController.settings.value.decimalPrecision;
       final activeBike = bikeController.activeBike;
@@ -98,10 +98,22 @@ class DashboardView extends GetView<DashboardController> {
         SummaryCard(
           title: 'Average Mileage',
           value: '${AppFormatters.number(controller.averageMileage, precision: precision)} $mileageUnit',
+          onInfoTap: () => _showCardInfo(
+            context,
+            title: 'Average Mileage',
+            description: 'Average of all valid mileage values from fuel entries after the first one.',
+            formula: 'Mileage per entry = Trip Distance / Fuel Quantity\nAverage Mileage = Sum of valid mileages / Number of valid mileage entries',
+          ),
         ),
         SummaryCard(
           title: 'Latest Mileage',
           value: '${AppFormatters.number(controller.latestMileage, precision: precision)} $mileageUnit',
+          onInfoTap: () => _showCardInfo(
+            context,
+            title: 'Latest Mileage',
+            description: 'Mileage value from your most recent fuel entry that has a valid trip calculation.',
+            formula: 'Latest Mileage = Mileage of most recent valid fuel log',
+          ),
         ),
         SummaryCard(
           title: 'Total Distance',
@@ -135,15 +147,33 @@ class DashboardView extends GetView<DashboardController> {
         SummaryCard(
           title: 'Avg Cost / Distance',
           value: '$costPerDistanceUnit ${AppFormatters.number(controller.averageCostPerDistance, precision: precision)}',
+          onInfoTap: () => _showCardInfo(
+            context,
+            title: 'Average Cost per Distance',
+            description: 'Average fuel spending for each distance unit across valid entries.',
+            formula: 'Cost per distance (entry) = Total Cost / Trip Distance\nAverage = Sum of valid cost-per-distance values / Count',
+          ),
         ),
         SummaryCard(
           title: 'Last 30 Days',
           value: '$currency ${AppFormatters.number(controller.last30DaysExpense, precision: precision)}',
+          onInfoTap: () => _showCardInfo(
+            context,
+            title: 'Last 30 Days Expense',
+            description: 'Total fuel spending from entries in the most recent 30-day window.',
+            formula: 'Last 30 Days Expense = Sum of Total Cost for entries in last 30 days',
+          ),
         ),
         SummaryCard(
           title: '30D Change',
           value: '${AppFormatters.number(controller.last30DaysExpenseChangePercent, precision: precision)}%',
           subtitle: 'vs previous 30 days',
+          onInfoTap: () => _showCardInfo(
+            context,
+            title: '30-Day Change',
+            description: 'Compares current 30-day fuel expense against the previous 30-day period.',
+            formula: 'Change % = ((Current 30D Expense - Previous 30D Expense) / Previous 30D Expense) x 100',
+          ),
         ),
       ];
 
@@ -165,22 +195,13 @@ class DashboardView extends GetView<DashboardController> {
             Card(
               color: colorScheme.tertiaryContainer,
               child: ListTile(
-                title: Text(
-                  'Refill Reminder',
-                  style: TextStyle(color: colorScheme.onTertiaryContainer),
-                ),
-                subtitle: Text(
-                  'Your refill interval threshold has been crossed.',
-                  style: TextStyle(color: colorScheme.onTertiaryContainer),
-                ),
+                title: Text('Refill Reminder', style: TextStyle(color: colorScheme.onTertiaryContainer)),
+                subtitle: Text('Your refill interval threshold has been crossed.', style: TextStyle(color: colorScheme.onTertiaryContainer)),
               ),
             ),
           _buildSegmentTitle(context, 'Performance'),
           const SizedBox(height: _dashboardSubsectionSpacing),
-          _buildSummarySegment(
-            crossAxisCount: summaryCrossAxisCount,
-            cards: performanceCards,
-          ),
+          _buildSummarySegment(crossAxisCount: summaryCrossAxisCount, cards: performanceCards),
           const SizedBox(height: _dashboardSectionSpacing),
           _buildLineChartSection(
             context: context,
@@ -194,10 +215,7 @@ class DashboardView extends GetView<DashboardController> {
           const SizedBox(height: _dashboardSectionSpacing),
           _buildSegmentTitle(context, 'Cost & Spending'),
           const SizedBox(height: _dashboardSubsectionSpacing),
-          _buildSummarySegment(
-            crossAxisCount: summaryCrossAxisCount,
-            cards: costCards,
-          ),
+          _buildSummarySegment(crossAxisCount: summaryCrossAxisCount, cards: costCards),
           const SizedBox(height: _dashboardSectionSpacing),
           Text('Monthly Expense', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: _dashboardSubsectionSpacing),
@@ -275,10 +293,7 @@ class DashboardView extends GetView<DashboardController> {
           const SizedBox(height: _dashboardSectionSpacing),
           _buildSegmentTitle(context, 'Fuel Profile'),
           const SizedBox(height: _dashboardSubsectionSpacing),
-          _buildSummarySegment(
-            crossAxisCount: summaryCrossAxisCount,
-            cards: fuelProfileCards,
-          ),
+          _buildSummarySegment(crossAxisCount: summaryCrossAxisCount, cards: fuelProfileCards),
           const SizedBox(height: _dashboardSectionSpacing),
           _buildLineChartSection(
             context: context,
@@ -344,14 +359,9 @@ class DashboardView extends GetView<DashboardController> {
     });
   }
 
-  Widget _buildSummarySegment({
-    required int crossAxisCount,
-    required List<Widget> cards,
-  }) {
+  Widget _buildSummarySegment({required int crossAxisCount, required List<Widget> cards}) {
     return MasonryGridView.builder(
-      gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-      ),
+      gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: _summaryGridSpacing,
@@ -361,13 +371,33 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildSegmentTitle(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+  void _showCardInfo(BuildContext context, {required String title, required String description, required String formula}) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [Expanded(child: Text(title, style: Theme.of(context).textTheme.titleLarge))],
+            ),
+            const SizedBox(height: 10),
+            Text(description, style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 12),
+            Text('How it is calculated', style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 6),
+            Text(formula, style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
+      ),
     );
+  }
+
+  Widget _buildSegmentTitle(BuildContext context, String title) {
+    return Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700));
   }
 
   Widget _buildLineChartSection({
