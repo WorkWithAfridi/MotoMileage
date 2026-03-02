@@ -62,6 +62,8 @@ class FuelLogsView extends GetView<FuelController> {
                           ),
                         ),
                         PopupMenuButton<String>(
+                          position: PopupMenuPosition.under,
+                          offset: const Offset(0, 4),
                           onSelected: (value) async {
                             if (value == 'edit') {
                               await showModalBottomSheet<void>(

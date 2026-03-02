@@ -23,8 +23,71 @@ class HomeShellView extends StatefulWidget {
 
 class _HomeShellViewState extends State<HomeShellView> {
   int _index = 0;
+  final GlobalKey _bikeSelectorKey = GlobalKey();
 
   static const _tabs = [DashboardView(), FuelLogsView(), MaintenanceView(), SettingsView()];
+
+  Future<void> _showBikeSelectorMenu(
+    BuildContext context, {
+    required BikeController bikeController,
+    required String? activeBikeId,
+  }) async {
+    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final anchor = _bikeSelectorKey.currentContext?.findRenderObject() as RenderBox?;
+    if (anchor == null) return;
+
+    final topLeft = anchor.localToGlobal(Offset.zero, ancestor: overlay);
+    final bottomRight = anchor.localToGlobal(
+      anchor.size.bottomRight(Offset.zero),
+      ancestor: overlay,
+    );
+    final position = RelativeRect.fromRect(
+      Rect.fromPoints(topLeft, bottomRight).translate(0, 4),
+      Offset.zero & overlay.size,
+    );
+
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final selectedBikeId = await showMenu<String>(
+      context: context,
+      position: position,
+      elevation: isDark ? 6 : 10,
+      color: isDark
+          ? colorScheme.surfaceContainerHigh
+          : colorScheme.surfaceContainerLowest,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.black.withValues(alpha: isDark ? 0.35 : 0.22),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      constraints: BoxConstraints(
+        minWidth: anchor.size.width,
+        maxWidth: anchor.size.width,
+        maxHeight: 340,
+      ),
+      items: bikeController.bikes
+          .map(
+            (bike) => PopupMenuItem<String>(
+              value: bike.id,
+              child: Row(
+                children: [
+                  Expanded(child: Text('${bike.name} (${bike.model})')),
+                  if (bike.id == activeBikeId)
+                    Icon(
+                      Icons.check_rounded,
+                      size: 18,
+                      color: colorScheme.primary,
+                    ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+    );
+
+    if (selectedBikeId == null) return;
+    bikeController.setActiveBike(selectedBikeId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,35 +106,30 @@ class _HomeShellViewState extends State<HomeShellView> {
       return Scaffold(
         appBar: AppBar(
           title: hasBikes
-              ? PopupMenuButton<String>(
-                  tooltip: 'Select Bike',
-                  onSelected: bikeController.setActiveBike,
-                  itemBuilder: (_) => bikeController.bikes
-                      .map(
-                        (bike) => PopupMenuItem<String>(
-                          value: bike.id,
-                          child: Row(
-                            children: [
-                              Expanded(child: Text('${bike.name} (${bike.model})')),
-                              if (bike.id == activeBike?.id) Icon(Icons.check_rounded, size: 18, color: colorScheme.primary),
-                            ],
+              ? InkWell(
+                  key: _bikeSelectorKey,
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => _showBikeSelectorMenu(
+                    context,
+                    bikeController: bikeController,
+                    activeBikeId: activeBike?.id,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            activeBike == null ? 'Select Bike' : '${activeBike.name} (${activeBike.model})',
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: colorScheme.onSurface),
                           ),
                         ),
-                      )
-                      .toList(),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          activeBike == null ? 'Select Bike' : '${activeBike.name} (${activeBike.model})',
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: colorScheme.onSurface),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Icon(Icons.expand_more_rounded, color: colorScheme.primary),
-                    ],
+                        const SizedBox(width: 6),
+                        Icon(Icons.expand_more_rounded, color: colorScheme.primary),
+                      ],
+                    ),
                   ),
                 )
               : const Text('Moto Mileage', style: TextStyle(fontWeight: FontWeight.w700)),
@@ -84,6 +142,8 @@ class _HomeShellViewState extends State<HomeShellView> {
             ),
             if (activeBike != null)
               PopupMenuButton<String>(
+                position: PopupMenuPosition.under,
+                offset: const Offset(0, 4),
                 onSelected: (value) async {
                   if (value == 'edit') {
                     await showModalBottomSheet<void>(
