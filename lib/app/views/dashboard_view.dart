@@ -31,7 +31,7 @@ const double _pieCenterSpaceRadius = 42;
 const double _pieSectionsSpace = 2;
 const double _pieAreaHorizontalPadding = 12;
 const double _pieAreaVerticalPadding = 6;
-const double _summaryGridSpacing = 8;
+const double _summaryGridSpacing = 4;
 const double _summarySingleColumnBreakpoint = 430;
 const double _summaryTripleColumnBreakpoint = 900;
 

@@ -50,7 +50,7 @@ class MaintenanceView extends GetView<MaintenanceController> {
                 child: Transform.translate(offset: Offset(0, 12 * (1 - value)), child: child),
               ),
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(bottom: 4),
                 child: Card(
                   child: Padding(
                     padding: const EdgeInsets.all(12),

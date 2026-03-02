@@ -10,10 +10,12 @@ import '../controllers/bike_controller.dart';
 import '../controllers/fuel_controller.dart';
 import '../controllers/maintenance_controller.dart';
 import '../controllers/settings_controller.dart';
+import '../data/app_tips_database.dart';
 import '../services/backup_service.dart';
 import '../services/csv_export_service.dart';
 import '../services/demo_data_service.dart';
 import '../services/local_storage_service.dart';
+import 'tips_view.dart';
 import 'widgets/app_dropdown_form_field.dart';
 
 class SettingsView extends GetView<SettingsController> {
@@ -88,7 +90,9 @@ class SettingsView extends GetView<SettingsController> {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
+          const _TipsSectionCard(),
+          const SizedBox(height: 4),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -112,7 +116,7 @@ class SettingsView extends GetView<SettingsController> {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -135,7 +139,7 @@ class SettingsView extends GetView<SettingsController> {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -207,7 +211,7 @@ class SettingsView extends GetView<SettingsController> {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -247,7 +251,7 @@ class SettingsView extends GetView<SettingsController> {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -329,5 +333,46 @@ class SettingsView extends GetView<SettingsController> {
       case AppThemePreset.iconTealEmber:
         return 'Teal & Ember';
     }
+  }
+}
+
+class _TipsSectionCard extends StatelessWidget {
+  const _TipsSectionCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final totalTips = AppTipsDatabase.fuelTips.length + AppTipsDatabase.maintenanceTips.length;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Tips', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 6),
+            Text('Browse local fuel and maintenance tip databases.', style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 8),
+            Text('$totalTips tips available', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonalIcon(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TipsView()));
+                },
+                icon: const Icon(Icons.menu_book_outlined),
+                label: const Text('Open Tips'),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Fuel DB: ${AppTipsDatabase.fuelTips.length}  |  Maintenance DB: ${AppTipsDatabase.maintenanceTips.length}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
