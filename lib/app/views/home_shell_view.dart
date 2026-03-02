@@ -242,6 +242,15 @@ class _HomeShellViewState extends State<HomeShellView> {
                 duration: const Duration(milliseconds: 220),
                 switchInCurve: Curves.easeOutBack,
                 switchOutCurve: Curves.easeIn,
+                layoutBuilder: (currentChild, previousChildren) {
+                  return Stack(
+                    alignment: Alignment.bottomRight,
+                    children: <Widget>[
+                      ...previousChildren,
+                      ?currentChild,
+                    ],
+                  );
+                },
                 transitionBuilder: (child, animation) {
                   return ScaleTransition(
                     scale: animation,
@@ -268,6 +277,7 @@ class _HomeShellViewState extends State<HomeShellView> {
     if (index == 1) {
       return FloatingActionButton.extended(
         key: const ValueKey('fuelFab'),
+        heroTag: 'fuelFab',
         onPressed: () =>
             showModalBottomSheet<void>(context: context, showDragHandle: true, isScrollControlled: true, builder: (_) => const FuelEntryFormSheet()),
         icon: const Icon(Icons.local_gas_station_outlined),
@@ -278,6 +288,7 @@ class _HomeShellViewState extends State<HomeShellView> {
     if (index == 2) {
       return FloatingActionButton.extended(
         key: const ValueKey('maintenanceFab'),
+        heroTag: 'maintenanceFab',
         onPressed: () =>
             showModalBottomSheet<void>(context: context, showDragHandle: true, isScrollControlled: true, builder: (_) => const MaintenanceFormSheet()),
         icon: const Icon(Icons.build_circle_outlined),
