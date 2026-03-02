@@ -153,7 +153,7 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                   child: Text(widget.bike == null ? 'Save Bike' : 'Update Bike'),
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),

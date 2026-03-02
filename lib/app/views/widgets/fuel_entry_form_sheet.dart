@@ -181,7 +181,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                   child: Text(widget.entry == null ? 'Save Entry' : 'Update Entry'),
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),

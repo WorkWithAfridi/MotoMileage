@@ -104,7 +104,7 @@ class _MaintenanceFormSheetState extends State<MaintenanceFormSheet> {
                   child: const Text('Save Maintenance'),
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
