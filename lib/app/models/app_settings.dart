@@ -23,7 +23,7 @@ class AppSettings {
     defaultDistanceUnit: DistanceUnit.km,
     defaultFuelUnit: FuelUnit.liters,
     refillReminderInterval: 250,
-    themePreset: AppThemePreset.midnightTeal,
+    themePreset: AppThemePreset.arcticBlue,
   );
 
   AppSettings copyWith({
@@ -39,8 +39,7 @@ class AppSettings {
       decimalPrecision: decimalPrecision ?? this.decimalPrecision,
       defaultDistanceUnit: defaultDistanceUnit ?? this.defaultDistanceUnit,
       defaultFuelUnit: defaultFuelUnit ?? this.defaultFuelUnit,
-      refillReminderInterval:
-          refillReminderInterval ?? this.refillReminderInterval,
+      refillReminderInterval: refillReminderInterval ?? this.refillReminderInterval,
       themePreset: themePreset ?? this.themePreset,
     );
   }
@@ -61,41 +60,21 @@ class AppSettings {
 
     return AppSettings(
       currencySymbol: map['currencySymbol'] as String? ?? defaults.currencySymbol,
-      decimalPrecision: (map['decimalPrecision'] as num?)?.toInt() ??
-          defaults.decimalPrecision,
-      defaultDistanceUnit: DistanceUnit.values.firstWhere(
-        (value) => value.name == map['defaultDistanceUnit'],
-        orElse: () => defaults.defaultDistanceUnit,
-      ),
-      defaultFuelUnit: FuelUnit.values.firstWhere(
-        (value) => value.name == map['defaultFuelUnit'],
-        orElse: () => defaults.defaultFuelUnit,
-      ),
-      refillReminderInterval:
-          (map['refillReminderInterval'] as num?)?.toDouble() ??
-              defaults.refillReminderInterval,
-      themePreset: _parseThemePreset(
-        map['themePreset'] as String?,
-        legacyDarkMode: legacyDarkMode,
-      ),
+      decimalPrecision: (map['decimalPrecision'] as num?)?.toInt() ?? defaults.decimalPrecision,
+      defaultDistanceUnit: DistanceUnit.values.firstWhere((value) => value.name == map['defaultDistanceUnit'], orElse: () => defaults.defaultDistanceUnit),
+      defaultFuelUnit: FuelUnit.values.firstWhere((value) => value.name == map['defaultFuelUnit'], orElse: () => defaults.defaultFuelUnit),
+      refillReminderInterval: (map['refillReminderInterval'] as num?)?.toDouble() ?? defaults.refillReminderInterval,
+      themePreset: _parseThemePreset(map['themePreset'] as String?, legacyDarkMode: legacyDarkMode),
     );
   }
 
-  static AppThemePreset _parseThemePreset(
-    String? value, {
-    required bool? legacyDarkMode,
-  }) {
+  static AppThemePreset _parseThemePreset(String? value, {required bool? legacyDarkMode}) {
     if (value != null) {
-      return AppThemePreset.values.firstWhere(
-        (item) => item.name == value,
-        orElse: () => defaults.themePreset,
-      );
+      return AppThemePreset.values.firstWhere((item) => item.name == value, orElse: () => defaults.themePreset);
     }
 
     if (legacyDarkMode != null) {
-      return legacyDarkMode
-          ? AppThemePreset.midnightTeal
-          : AppThemePreset.oceanLight;
+      return legacyDarkMode ? AppThemePreset.arcticBlue : AppThemePreset.oceanLight;
     }
 
     return defaults.themePreset;

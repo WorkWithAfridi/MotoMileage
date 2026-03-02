@@ -267,8 +267,9 @@ class SettingsView extends GetView<SettingsController> {
                           title: const Text('Reset All Data'),
                           content: const Text('This will permanently delete all bikes, fuel logs, maintenance logs, and settings from this device.'),
                           actions: [
-                            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
                             FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Reset')),
+                            SizedBox(height: 10),
+                            OutlinedButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
                           ],
                         ),
                       );

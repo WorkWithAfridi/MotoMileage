@@ -42,7 +42,7 @@ class DemoDataService {
       defaultDistanceUnit: DistanceUnit.km,
       defaultFuelUnit: FuelUnit.liters,
       refillReminderInterval: 220,
-      themePreset: AppThemePreset.midnightTeal,
+      themePreset: AppThemePreset.arcticBlue,
     );
 
     final bike1Fuel = _withCalculatedFields([
