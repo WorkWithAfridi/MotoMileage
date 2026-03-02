@@ -37,6 +37,9 @@ class _HomeShellViewState extends State<HomeShellView> {
     return Obx(() {
       final activeBike = bikeController.activeBike;
       final hasBikes = bikeController.bikes.isNotEmpty;
+      final theme = Theme.of(context);
+      final colorScheme = theme.colorScheme;
+      final isDark = theme.brightness == Brightness.dark;
 
       return Scaffold(
         appBar: AppBar(
@@ -44,7 +47,18 @@ class _HomeShellViewState extends State<HomeShellView> {
               ? DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: activeBike?.id,
-                    hint: const Text('Select Bike'),
+                    hint: Text(
+                      'Select Bike',
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.onSurfaceVariant),
+                    ),
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: colorScheme.onSurface),
+                    icon: const Icon(Icons.expand_more_rounded),
+                    iconEnabledColor: colorScheme.primary,
+                    iconDisabledColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(18),
+                    dropdownColor: isDark ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainerLowest,
+                    menuMaxHeight: 340,
+                    elevation: isDark ? 6 : 10,
                     items: bikeController.bikes.map((bike) => DropdownMenuItem(value: bike.id, child: Text('${bike.name} (${bike.model})'))).toList(),
                     onChanged: bikeController.setActiveBike,
                   ),

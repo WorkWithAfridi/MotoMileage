@@ -263,6 +263,21 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: isDark
+            ? colorScheme.surfaceContainerHigh
+            : colorScheme.surfaceContainerLowest,
+        surfaceTintColor: Colors.transparent,
+        elevation: isDark ? 6 : 10,
+        shadowColor: Colors.black.withValues(alpha: isDark ? 0.35 : 0.22),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        menuPadding: const EdgeInsets.symmetric(vertical: 8),
+        textStyle: base.textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+          color: colorScheme.onSurface,
+        ),
+        position: PopupMenuPosition.under,
+      ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
