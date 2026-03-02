@@ -39,28 +39,39 @@ class _HomeShellViewState extends State<HomeShellView> {
       final hasBikes = bikeController.bikes.isNotEmpty;
       final theme = Theme.of(context);
       final colorScheme = theme.colorScheme;
-      final isDark = theme.brightness == Brightness.dark;
 
       return Scaffold(
         appBar: AppBar(
           title: hasBikes
-              ? DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: activeBike?.id,
-                    hint: Text(
-                      'Select Bike',
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.onSurfaceVariant),
-                    ),
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: colorScheme.onSurface),
-                    icon: const Icon(Icons.expand_more_rounded),
-                    iconEnabledColor: colorScheme.primary,
-                    iconDisabledColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(18),
-                    dropdownColor: isDark ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainerLowest,
-                    menuMaxHeight: 340,
-                    elevation: isDark ? 6 : 10,
-                    items: bikeController.bikes.map((bike) => DropdownMenuItem(value: bike.id, child: Text('${bike.name} (${bike.model})'))).toList(),
-                    onChanged: bikeController.setActiveBike,
+              ? PopupMenuButton<String>(
+                  tooltip: 'Select Bike',
+                  onSelected: bikeController.setActiveBike,
+                  itemBuilder: (_) => bikeController.bikes
+                      .map(
+                        (bike) => PopupMenuItem<String>(
+                          value: bike.id,
+                          child: Row(
+                            children: [
+                              Expanded(child: Text('${bike.name} (${bike.model})')),
+                              if (bike.id == activeBike?.id) Icon(Icons.check_rounded, size: 18, color: colorScheme.primary),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          activeBike == null ? 'Select Bike' : '${activeBike.name} (${activeBike.model})',
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: colorScheme.onSurface),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(Icons.expand_more_rounded, color: colorScheme.primary),
+                    ],
                   ),
                 )
               : const Text('Moto Mileage', style: TextStyle(fontWeight: FontWeight.w700)),
