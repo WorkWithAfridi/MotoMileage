@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../constants.dart';
 import '../../controllers/fuel_controller.dart';
 import '../../models/fuel_log_entry.dart';
+import 'app_dropdown_form_field.dart';
 
 class FuelEntryFormSheet extends StatefulWidget {
   const FuelEntryFormSheet({super.key, this.entry});
@@ -93,7 +94,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
               ),
               if (_showOptional) ...[
                 const SizedBox(height: 18),
-                DropdownButtonFormField<FuelType?>(
+                AppDropdownFormField<FuelType?>(
                   initialValue: _fuelType,
                   decoration: const InputDecoration(labelText: 'Fuel Type'),
                   items: [

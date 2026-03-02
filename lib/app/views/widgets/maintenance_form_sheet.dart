@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../constants.dart';
 import '../../controllers/maintenance_controller.dart';
+import 'app_dropdown_form_field.dart';
 
 class MaintenanceFormSheet extends StatefulWidget {
   const MaintenanceFormSheet({super.key});
@@ -44,7 +45,7 @@ class _MaintenanceFormSheetState extends State<MaintenanceFormSheet> {
             children: [
               Text('Add Maintenance', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 22),
-              DropdownButtonFormField<MaintenanceType>(
+              AppDropdownFormField<MaintenanceType>(
                 initialValue: _type,
                 decoration: const InputDecoration(labelText: 'Type'),
                 items: MaintenanceType.values.map((type) => DropdownMenuItem(value: type, child: Text(type.label))).toList(),

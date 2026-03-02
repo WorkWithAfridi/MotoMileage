@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../constants.dart';
 import '../../controllers/bike_controller.dart';
 import '../../models/bike.dart';
+import 'app_dropdown_form_field.dart';
 
 class BikeFormSheet extends StatefulWidget {
   const BikeFormSheet({super.key, this.bike});
@@ -88,7 +89,7 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownButtonFormField<DistanceUnit>(
+                    child: AppDropdownFormField<DistanceUnit>(
                       initialValue: _distanceUnit,
                       decoration: const InputDecoration(labelText: 'Distance'),
                       items: DistanceUnit.values.map((unit) => DropdownMenuItem(value: unit, child: Text(unit.name.toUpperCase()))).toList(),
@@ -100,7 +101,7 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: DropdownButtonFormField<FuelUnit>(
+                    child: AppDropdownFormField<FuelUnit>(
                       initialValue: _fuelUnit,
                       decoration: const InputDecoration(labelText: 'Fuel'),
                       items: FuelUnit.values.map((unit) => DropdownMenuItem(value: unit, child: Text(unit.name.toUpperCase()))).toList(),

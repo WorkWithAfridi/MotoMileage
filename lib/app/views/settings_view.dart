@@ -14,6 +14,7 @@ import '../services/backup_service.dart';
 import '../services/csv_export_service.dart';
 import '../services/demo_data_service.dart';
 import '../services/local_storage_service.dart';
+import 'widgets/app_dropdown_form_field.dart';
 
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
@@ -51,7 +52,7 @@ class SettingsView extends GetView<SettingsController> {
                     },
                   ),
                   const SizedBox(height: 18),
-                  DropdownButtonFormField<int>(
+                  AppDropdownFormField<int>(
                     initialValue: current.decimalPrecision,
                     decoration: const InputDecoration(labelText: 'Decimal Precision'),
                     items: const [0, 1, 2, 3, 4].map((value) => DropdownMenuItem(value: value, child: Text('$value'))).toList(),
@@ -62,7 +63,7 @@ class SettingsView extends GetView<SettingsController> {
                     },
                   ),
                   const SizedBox(height: 18),
-                  DropdownButtonFormField<DistanceUnit>(
+                  AppDropdownFormField<DistanceUnit>(
                     initialValue: current.defaultDistanceUnit,
                     decoration: const InputDecoration(labelText: 'Default Distance Unit'),
                     items: DistanceUnit.values.map((unit) => DropdownMenuItem(value: unit, child: Text(unit.name.toUpperCase()))).toList(),
@@ -73,7 +74,7 @@ class SettingsView extends GetView<SettingsController> {
                     },
                   ),
                   const SizedBox(height: 18),
-                  DropdownButtonFormField<FuelUnit>(
+                  AppDropdownFormField<FuelUnit>(
                     initialValue: current.defaultFuelUnit,
                     decoration: const InputDecoration(labelText: 'Default Fuel Unit'),
                     items: FuelUnit.values.map((unit) => DropdownMenuItem(value: unit, child: Text(unit.name.toUpperCase()))).toList(),
@@ -120,7 +121,7 @@ class SettingsView extends GetView<SettingsController> {
                 children: [
                   Text('Theme', style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<AppThemePreset>(
+                  AppDropdownFormField<AppThemePreset>(
                     initialValue: current.themePreset,
                     decoration: const InputDecoration(labelText: 'Color Theme'),
                     items: AppThemePreset.values.map((preset) => DropdownMenuItem(value: preset, child: Text(_themePresetLabel(preset)))).toList(),
