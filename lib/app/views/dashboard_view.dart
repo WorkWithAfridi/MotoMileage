@@ -19,14 +19,13 @@ import 'widgets/summary_card.dart';
 const double _dashboardPagePadding = 12;
 const double _dashboardSectionSpacing = 12;
 const double _dashboardSubsectionSpacing = 12;
-const double _chartHeight = 300;
+const double _chartHeight = 340;
 const double _chartCardPadding = 12;
-const double _lineYAxisReservedSize = 30;
-const double _barYAxisReservedSize = 30;
 const double _chartXAxisReservedSize = 30;
 const double _chartAxisLabelSpace = 6;
 const double _chartXLabelTopPadding = 6;
 const double _fixedYAxisLabelWidth = 24;
+const double _fixedYAxisTicksWidth = 34;
 const double _fixedXAxisLabelTopSpacing = 6;
 const double _lineChartPixelsPerPoint = 56;
 const double _barChartPixelsPerPoint = 68;
@@ -372,33 +371,9 @@ class DashboardView extends GetView<DashboardController> {
                                                   showTitles: false,
                                                 ),
                                               ),
-                                              leftTitles: AxisTitles(
+                                              leftTitles: const AxisTitles(
                                                 sideTitles: SideTitles(
-                                                  showTitles: true,
-                                                  reservedSize:
-                                                      _barYAxisReservedSize,
-                                                  interval: _barInterval(
-                                                    expenseBars,
-                                                  ),
-                                                  getTitlesWidget:
-                                                      (value, meta) =>
-                                                          SideTitleWidget(
-                                                            meta: meta,
-                                                            space:
-                                                                _chartAxisLabelSpace,
-                                                            child: Text(
-                                                              value
-                                                                  .toStringAsFixed(
-                                                                    0,
-                                                                  ),
-                                                              style:
-                                                                  Theme.of(
-                                                                        context,
-                                                                      )
-                                                                      .textTheme
-                                                                      .labelSmall,
-                                                            ),
-                                                          ),
+                                                  showTitles: false,
                                                 ),
                                               ),
                                               bottomTitles: AxisTitles(
@@ -442,6 +417,15 @@ class DashboardView extends GetView<DashboardController> {
                                           ),
                                         ),
                                       ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: _fixedYAxisTicksWidth,
+                                    child: _buildStickyYAxisTicks(
+                                      context: context,
+                                      minY: 0,
+                                      maxY: _barMaxY(expenseBars),
+                                      interval: _barInterval(expenseBars),
                                     ),
                                   ),
                                 ],
@@ -831,24 +815,9 @@ class DashboardView extends GetView<DashboardController> {
                                               showTitles: false,
                                             ),
                                           ),
-                                          leftTitles: AxisTitles(
+                                          leftTitles: const AxisTitles(
                                             sideTitles: SideTitles(
-                                              showTitles: true,
-                                              reservedSize:
-                                                  _lineYAxisReservedSize,
-                                              interval: _lineInterval(spots),
-                                              getTitlesWidget: (value, meta) =>
-                                                  SideTitleWidget(
-                                                    meta: meta,
-                                                    space:
-                                                        _chartAxisLabelSpace,
-                                                    child: Text(
-                                                      value.toStringAsFixed(0),
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .labelSmall,
-                                                    ),
-                                                  ),
+                                              showTitles: false,
                                             ),
                                           ),
                                           bottomTitles: AxisTitles(
@@ -893,6 +862,15 @@ class DashboardView extends GetView<DashboardController> {
                                       ),
                                     ),
                                   ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: _fixedYAxisTicksWidth,
+                                child: _buildStickyYAxisTicks(
+                                  context: context,
+                                  minY: _lineMinY(spots),
+                                  maxY: _lineMaxY(spots),
+                                  interval: _lineInterval(spots),
                                 ),
                               ),
                             ],
@@ -945,6 +923,74 @@ class DashboardView extends GetView<DashboardController> {
         ),
       ],
     );
+  }
+
+  Widget _buildStickyYAxisTicks({
+    required BuildContext context,
+    required double minY,
+    required double maxY,
+    required double interval,
+  }) {
+    final tickValues = _buildYAxisTickValues(
+      minY: minY,
+      maxY: maxY,
+      interval: interval,
+    );
+    final range = maxY - minY;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final plotHeight = (constraints.maxHeight - _chartXAxisReservedSize)
+            .clamp(0.0, constraints.maxHeight);
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: _chartXAxisReservedSize),
+          child: SizedBox(
+            height: plotHeight,
+            child: Stack(
+              fit: StackFit.expand,
+              children: tickValues.map((value) {
+                final normalized = range <= 0 ? 0.5 : (value - minY) / range;
+                final alignY = 1 - (normalized * 2);
+                return Align(
+                  alignment: Alignment(1, alignY.clamp(-1.0, 1.0)),
+                  child: Text(
+                    value.toStringAsFixed(0),
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  List<double> _buildYAxisTickValues({
+    required double minY,
+    required double maxY,
+    required double interval,
+  }) {
+    if (maxY <= minY || interval <= 0) {
+      return [maxY];
+    }
+
+    final values = <double>[];
+    for (double value = minY; value <= maxY; value += interval) {
+      values.add(value);
+    }
+    if ((values.lastOrNull ?? minY) < maxY) {
+      values.add(maxY);
+    }
+
+    final deduped = <String, double>{};
+    for (final value in values) {
+      deduped[value.toStringAsFixed(0)] = value;
+    }
+
+    final sorted = deduped.values.toList()..sort((a, b) => b.compareTo(a));
+    return sorted;
   }
 
   String _entryMonthLabel({
