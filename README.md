@@ -6,7 +6,7 @@ It is designed for fast daily logging, meaningful insights, and zero cloud depen
 ## Highlights
 
 - Fully offline app (no API, no auth, no cloud sync)
-- Local persistence with SharedPreferences (JSON-encoded models)
+- Local persistence with SQLite (`sqflite`)
 - GetX for state management, dependency injection, and navigation flow
 - Multi-bike support with per-bike fuel and maintenance history
 - Smart fuel calculations (trip, mileage, cost-per-unit, cost-per-distance)
@@ -23,22 +23,22 @@ It is designed for fast daily logging, meaningful insights, and zero cloud depen
 - No internet required
 - All app behavior runs locally
 
-### Storage model (SharedPreferences)
+### Storage model (SQLite)
 
-Data is stored as key-value JSON payloads:
+Data is stored locally in SQLite via `sqflite`:
 
-- `bikes` -> JSON list of bikes
-- `active_bike_id` -> currently selected bike id
-- `fuel_logs_{bikeId}` -> JSON list of fuel entries per bike
-- `maintenance_{bikeId}` -> JSON list of maintenance entries per bike
-- `settings` -> JSON object of app settings and theme preset
-- `onboarding_seen` -> bool flag for first-launch onboarding
+- `kv_store` table for app-level key-value state:
+  - `active_bike_id`
+  - `settings`
+  - `onboarding_seen`
+- bike/fuel/maintenance payloads are persisted through repositories on top of SQLite storage
 
 ### Tech stack
 
 - Flutter (Material 3)
 - GetX (`get`)
-- SharedPreferences (`shared_preferences`)
+- SQLite (`sqflite`)
+- Path utilities (`path`)
 - Charts (`fl_chart`)
 - Staggered cards (`flutter_staggered_grid_view`)
 - Export/share (`path_provider`, `share_plus`)
