@@ -33,382 +33,277 @@ class SettingsView extends GetView<SettingsController> {
 
     return Obx(() {
       final current = controller.settings.value;
-      final refillDistanceUnit = _distanceUnitLabel(
-        current.defaultDistanceUnit,
-      );
-      return ListView(
-        padding: const EdgeInsets.all(12),
-        children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Preferences',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    initialValue: current.currencySymbol,
-                    decoration: const InputDecoration(
-                      labelText: 'Currency Symbol',
+      final refillDistanceUnit = _distanceUnitLabel(current.defaultDistanceUnit);
+      return GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        child: ListView(
+          padding: const EdgeInsets.all(12),
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Preferences', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      initialValue: current.currencySymbol,
+                      decoration: const InputDecoration(labelText: 'Currency Symbol'),
+                      onChanged: (value) {
+                        final trimmed = value.trim();
+                        if (trimmed.isEmpty) return;
+                        controller.updateCurrencySymbol(trimmed);
+                      },
                     ),
-                    onChanged: (value) {
-                      final trimmed = value.trim();
-                      if (trimmed.isEmpty) return;
-                      controller.updateCurrencySymbol(trimmed);
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  AppDropdownFormField<int>(
-                    initialValue: current.decimalPrecision,
-                    decoration: const InputDecoration(
-                      labelText: 'Decimal Precision',
+                    const SizedBox(height: 18),
+                    AppDropdownFormField<int>(
+                      initialValue: current.decimalPrecision,
+                      decoration: const InputDecoration(labelText: 'Decimal Precision'),
+                      items: const [0, 1, 2, 3, 4].map((value) => DropdownMenuItem(value: value, child: Text('$value'))).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          controller.updateDecimalPrecision(value);
+                        }
+                      },
                     ),
-                    items: const [0, 1, 2, 3, 4]
-                        .map(
-                          (value) => DropdownMenuItem(
-                            value: value,
-                            child: Text('$value'),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.updateDecimalPrecision(value);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  AppDropdownFormField<DistanceUnit>(
-                    initialValue: current.defaultDistanceUnit,
-                    decoration: const InputDecoration(
-                      labelText: 'Default Distance Unit',
+                    const SizedBox(height: 18),
+                    AppDropdownFormField<DistanceUnit>(
+                      initialValue: current.defaultDistanceUnit,
+                      decoration: const InputDecoration(labelText: 'Default Distance Unit'),
+                      items: DistanceUnit.values.map((unit) => DropdownMenuItem(value: unit, child: Text(unit.name.toUpperCase()))).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          controller.updateDefaultDistanceUnit(value);
+                        }
+                      },
                     ),
-                    items: DistanceUnit.values
-                        .map(
-                          (unit) => DropdownMenuItem(
-                            value: unit,
-                            child: Text(unit.name.toUpperCase()),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.updateDefaultDistanceUnit(value);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  AppDropdownFormField<FuelUnit>(
-                    initialValue: current.defaultFuelUnit,
-                    decoration: const InputDecoration(
-                      labelText: 'Default Fuel Unit',
+                    const SizedBox(height: 18),
+                    AppDropdownFormField<FuelUnit>(
+                      initialValue: current.defaultFuelUnit,
+                      decoration: const InputDecoration(labelText: 'Default Fuel Unit'),
+                      items: FuelUnit.values.map((unit) => DropdownMenuItem(value: unit, child: Text(unit.name.toUpperCase()))).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          controller.updateDefaultFuelUnit(value);
+                        }
+                      },
                     ),
-                    items: FuelUnit.values
-                        .map(
-                          (unit) => DropdownMenuItem(
-                            value: unit,
-                            child: Text(unit.name.toUpperCase()),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.updateDefaultFuelUnit(value);
-                      }
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 4),
-          const _TipsSectionCard(),
-          const SizedBox(height: 4),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Reminders',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    initialValue: current.refillReminderInterval.toString(),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
+            const SizedBox(height: 4),
+            const _TipsSectionCard(),
+            const SizedBox(height: 4),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Reminders', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      initialValue: current.refillReminderInterval.toString(),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(labelText: 'Refill Reminder Interval', suffixText: refillDistanceUnit),
+                      onChanged: (value) {
+                        final parsed = double.tryParse(value);
+                        if (parsed != null && parsed > 0) {
+                          controller.updateRefillReminderInterval(parsed);
+                        }
+                      },
                     ),
-                    decoration: InputDecoration(
-                      labelText: 'Refill Reminder Interval',
-                      suffixText: refillDistanceUnit,
-                    ),
-                    onChanged: (value) {
-                      final parsed = double.tryParse(value);
-                      if (parsed != null && parsed > 0) {
-                        controller.updateRefillReminderInterval(parsed);
-                      }
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Theme', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 12),
-                  AppDropdownFormField<AppThemePreset>(
-                    initialValue: current.themePreset,
-                    decoration: const InputDecoration(labelText: 'Color Theme'),
-                    items: AppThemePreset.values
-                        .map(
-                          (preset) => DropdownMenuItem(
-                            value: preset,
-                            child: Text(_themePresetLabel(preset)),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.updateThemePreset(value);
-                      }
-                    },
-                  ),
-                ],
+            const SizedBox(height: 4),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Theme', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    AppDropdownFormField<AppThemePreset>(
+                      initialValue: current.themePreset,
+                      decoration: const InputDecoration(labelText: 'Color Theme'),
+                      items: AppThemePreset.values.map((preset) => DropdownMenuItem(value: preset, child: Text(_themePresetLabel(preset)))).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          controller.updateThemePreset(value);
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Data Management',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 10),
-                  FilledButton.tonal(
-                    onPressed: () async {
-                      final csv = csvService.buildFuelLogsCsv(
-                        fuelController.entries,
-                      );
-                      final dir = await getTemporaryDirectory();
-                      final file = File('${dir.path}/fuel_logs.csv');
-                      await file.writeAsString(csv);
-                      await SharePlus.instance.share(
-                        ShareParams(
-                          files: [XFile(file.path)],
-                          text: 'Moto Mileage fuel logs CSV export',
-                        ),
-                      );
-                    },
-                    child: const Text('Export Current Bike Logs (CSV)'),
-                  ),
-                  const SizedBox(height: 8),
-                  FilledButton.tonal(
-                    onPressed: () async {
-                      final json = backupService.exportBackupJson();
-                      final dir = await getTemporaryDirectory();
-                      final file = File('${dir.path}/motomileage_backup.json');
-                      await file.writeAsString(json);
-                      await SharePlus.instance.share(
-                        ShareParams(
-                          files: [XFile(file.path)],
-                          text: 'Moto Mileage backup JSON',
-                        ),
-                      );
-                    },
-                    child: const Text('Backup All Data (JSON)'),
-                  ),
-                  const SizedBox(height: 8),
-                  FilledButton.tonal(
-                    onPressed: () async {
-                      final textController = TextEditingController();
-                      final restored = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Restore Backup'),
-                          content: TextField(
-                            controller: textController,
-                            minLines: 6,
-                            maxLines: 10,
-                            decoration: const InputDecoration(
-                              hintText: 'Paste backup JSON',
-                              border: OutlineInputBorder(),
+            const SizedBox(height: 4),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Data Management', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 10),
+                    FilledButton.tonal(
+                      onPressed: () async {
+                        final csv = csvService.buildFuelLogsCsv(fuelController.entries);
+                        final dir = await getTemporaryDirectory();
+                        final file = File('${dir.path}/fuel_logs.csv');
+                        await file.writeAsString(csv);
+                        await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], text: 'Moto Mileage fuel logs CSV export'));
+                      },
+                      child: const Text('Export Current Bike Logs (CSV)'),
+                    ),
+                    const SizedBox(height: 8),
+                    FilledButton.tonal(
+                      onPressed: () async {
+                        final json = backupService.exportBackupJson();
+                        final dir = await getTemporaryDirectory();
+                        final file = File('${dir.path}/motomileage_backup.json');
+                        await file.writeAsString(json);
+                        await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], text: 'Moto Mileage backup JSON'));
+                      },
+                      child: const Text('Backup All Data (JSON)'),
+                    ),
+                    const SizedBox(height: 8),
+                    FilledButton.tonal(
+                      onPressed: () async {
+                        final textController = TextEditingController();
+                        final restored = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Restore Backup'),
+                            content: TextField(
+                              controller: textController,
+                              minLines: 6,
+                              maxLines: 10,
+                              decoration: const InputDecoration(hintText: 'Paste backup JSON', border: OutlineInputBorder()),
                             ),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+                              FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Restore')),
+                            ],
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Cancel'),
-                            ),
-                            FilledButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text('Restore'),
-                            ),
-                          ],
-                        ),
-                      );
-
-                      if (restored != true) {
-                        return;
-                      }
-
-                      try {
-                        await backupService.restoreBackupJson(
-                          textController.text,
                         );
+
+                        if (restored != true) {
+                          return;
+                        }
+
+                        try {
+                          await backupService.restoreBackupJson(textController.text);
+                          controller.reload();
+                          await bikeController.reload();
+                          await fuelController.reloadActiveBike();
+                          await maintenanceController.reloadActiveBike();
+                          Get.snackbar('Restored', 'Backup restored successfully.');
+                        } catch (_) {
+                          Get.snackbar('Error', 'Backup JSON is invalid.');
+                        }
+                      },
+                      child: const Text('Restore From JSON Text'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Demo Tools', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 10),
+                    FilledButton(
+                      onPressed: () async {
+                        final shouldPopulate = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Load Demo Data'),
+                            content: const Text('This will replace your current local data with demo entries.'),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+                              FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Replace & Load')),
+                            ],
+                          ),
+                        );
+
+                        if (shouldPopulate != true) {
+                          return;
+                        }
+
+                        await demoDataService.populateDemoData();
                         controller.reload();
                         await bikeController.reload();
                         await fuelController.reloadActiveBike();
                         await maintenanceController.reloadActiveBike();
-                        Get.snackbar(
-                          'Restored',
-                          'Backup restored successfully.',
-                        );
-                      } catch (_) {
-                        Get.snackbar('Error', 'Backup JSON is invalid.');
-                      }
-                    },
-                    child: const Text('Restore From JSON Text'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Demo Tools',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 10),
-                  FilledButton(
-                    onPressed: () async {
-                      final shouldPopulate = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Load Demo Data'),
-                          content: const Text(
-                            'This will replace your current local data with demo entries.',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Cancel'),
-                            ),
-                            FilledButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text('Replace & Load'),
-                            ),
-                          ],
-                        ),
-                      );
-
-                      if (shouldPopulate != true) {
-                        return;
-                      }
-
-                      await demoDataService.populateDemoData();
-                      controller.reload();
-                      await bikeController.reload();
-                      await fuelController.reloadActiveBike();
-                      await maintenanceController.reloadActiveBike();
-                      Get.snackbar(
-                        'Demo Ready',
-                        'Sample data loaded for testing.',
-                      );
-                    },
-                    child: const Text('Load Demo Data'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Danger Zone',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 10),
-                  FilledButton.tonal(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.errorContainer,
-                      foregroundColor: Theme.of(
-                        context,
-                      ).colorScheme.onErrorContainer,
+                        Get.snackbar('Demo Ready', 'Sample data loaded for testing.');
+                      },
+                      child: const Text('Load Demo Data'),
                     ),
-                    onPressed: () async {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Reset All Data'),
-                          content: const Text(
-                            'This will permanently delete all bikes, fuel logs, maintenance logs, and settings from this device.',
-                          ),
-                          actions: [
-                            FilledButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text('Reset'),
-                            ),
-                            SizedBox(height: 10),
-                            OutlinedButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Cancel'),
-                            ),
-                          ],
-                        ),
-                      );
-
-                      if (confirmed != true) {
-                        return;
-                      }
-
-                      await storageService.clear();
-                      controller.reload();
-                      await bikeController.reload();
-                      await fuelController.reloadActiveBike();
-                      await maintenanceController.reloadActiveBike();
-
-                      Get.snackbar(
-                        'Data Reset',
-                        'All local app data has been removed.',
-                      );
-                    },
-                    child: const Text('Reset All Data'),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Danger Zone', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 10),
+                    FilledButton.tonal(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Reset All Data'),
+                            content: const Text('This will permanently delete all bikes, fuel logs, maintenance logs, and settings from this device.'),
+                            actions: [
+                              FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Reset')),
+                              SizedBox(height: 10),
+                              OutlinedButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+                            ],
+                          ),
+                        );
+
+                        if (confirmed != true) {
+                          return;
+                        }
+
+                        await storageService.clear();
+                        controller.reload();
+                        await bikeController.reload();
+                        await fuelController.reloadActiveBike();
+                        await maintenanceController.reloadActiveBike();
+
+                        Get.snackbar('Data Reset', 'All local app data has been removed.');
+                      },
+                      child: const Text('Reset All Data'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     });
   }
@@ -456,9 +351,7 @@ class _TipsSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalTips =
-        AppTipsDatabase.fuelTips.length +
-        AppTipsDatabase.maintenanceTips.length;
+    final totalTips = AppTipsDatabase.fuelTips.length + AppTipsDatabase.maintenanceTips.length;
 
     return Card(
       child: Padding(
@@ -468,25 +361,15 @@ class _TipsSectionCard extends StatelessWidget {
           children: [
             Text('Tips', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 6),
-            Text(
-              'Browse local fuel and maintenance tip databases.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text('Browse local fuel and maintenance tip databases.', style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 8),
-            Text(
-              '$totalTips tips available',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
+            Text('$totalTips tips available', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: FilledButton.tonalIcon(
                 onPressed: () {
-                  Navigator.of(
-                    context,
-                  ).push(MaterialPageRoute(builder: (_) => const TipsView()));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TipsView()));
                 },
                 icon: const Icon(Icons.menu_book_outlined),
                 label: const Text('Open Tips'),
