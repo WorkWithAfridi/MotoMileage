@@ -9,8 +9,11 @@ import '../controllers/bike_controller.dart';
 import '../controllers/dashboard_controller.dart';
 import '../controllers/fuel_controller.dart';
 import '../controllers/settings_controller.dart';
+import '../data/app_tips_database.dart';
 import '../models/fuel_log_entry.dart';
 import '../utils/formatters.dart';
+import 'fuel_station_report_view.dart';
+import 'tips_view.dart';
 import 'widgets/summary_card.dart';
 
 const double _dashboardPagePadding = 12;
@@ -46,8 +49,10 @@ class DashboardView extends GetView<DashboardController> {
 
     return Obx(() {
       final colorScheme = Theme.of(context).colorScheme;
-      final viewportWidth = MediaQuery.of(context).size.width - (_dashboardPagePadding * 2);
-      final summaryCrossAxisCount = viewportWidth >= _summaryTripleColumnBreakpoint
+      final viewportWidth =
+          MediaQuery.of(context).size.width - (_dashboardPagePadding * 2);
+      final summaryCrossAxisCount =
+          viewportWidth >= _summaryTripleColumnBreakpoint
           ? 3
           : viewportWidth < _summarySingleColumnBreakpoint
           ? 1
@@ -59,18 +64,35 @@ class DashboardView extends GetView<DashboardController> {
       final fuelUnit = _fuelUnitLabel(activeBike?.fuelUnit);
       final mileageUnit = '$distanceUnit/$fuelUnit';
       final costPerDistanceUnit = '$currency/$distanceUnit';
-      final sortedEntries = [...fuelController.entries]..sort((a, b) => a.date.compareTo(b.date));
+      final sortedEntries = [...fuelController.entries]
+        ..sort((a, b) => a.date.compareTo(b.date));
 
-      final mileageEntries = sortedEntries.where((entry) => (entry.mileage ?? 0) > 0).toList();
-      final mileageSpots = List<FlSpot>.generate(mileageEntries.length, (index) => FlSpot(index.toDouble(), mileageEntries[index].mileage!));
+      final mileageEntries = sortedEntries
+          .where((entry) => (entry.mileage ?? 0) > 0)
+          .toList();
+      final mileageSpots = List<FlSpot>.generate(
+        mileageEntries.length,
+        (index) => FlSpot(index.toDouble(), mileageEntries[index].mileage!),
+      );
 
-      final quantityEntries = sortedEntries.where((entry) => entry.fuelQuantity > 0).toList();
-      final quantitySpots = List<FlSpot>.generate(quantityEntries.length, (index) => FlSpot(index.toDouble(), quantityEntries[index].fuelQuantity));
+      final quantityEntries = sortedEntries
+          .where((entry) => entry.fuelQuantity > 0)
+          .toList();
+      final quantitySpots = List<FlSpot>.generate(
+        quantityEntries.length,
+        (index) =>
+            FlSpot(index.toDouble(), quantityEntries[index].fuelQuantity),
+      );
 
-      final costPerDistanceEntries = sortedEntries.where((entry) => (entry.costPerDistance ?? 0) > 0).toList();
+      final costPerDistanceEntries = sortedEntries
+          .where((entry) => (entry.costPerDistance ?? 0) > 0)
+          .toList();
       final costPerDistanceSpots = List<FlSpot>.generate(
         costPerDistanceEntries.length,
-        (index) => FlSpot(index.toDouble(), costPerDistanceEntries[index].costPerDistance!),
+        (index) => FlSpot(
+          index.toDouble(),
+          costPerDistanceEntries[index].costPerDistance!,
+        ),
       );
 
       final monthlyExpense = <DateTime, double>{};
@@ -83,7 +105,9 @@ class DashboardView extends GetView<DashboardController> {
         expenseMonths.length,
         (index) => BarChartGroupData(
           x: index,
-          barRods: [BarChartRodData(toY: monthlyExpense[expenseMonths[index]] ?? 0)],
+          barRods: [
+            BarChartRodData(toY: monthlyExpense[expenseMonths[index]] ?? 0),
+          ],
         ),
       );
 
@@ -92,38 +116,53 @@ class DashboardView extends GetView<DashboardController> {
         final type = entry.fuelType?.name.toUpperCase() ?? 'UNKNOWN';
         fuelTypeCostMap[type] = (fuelTypeCostMap[type] ?? 0) + entry.totalCost;
       }
-      final fuelTypeSections = _fuelTypeSections(fuelTypeCostMap: fuelTypeCostMap, context: context);
+      final fuelTypeSections = _fuelTypeSections(
+        fuelTypeCostMap: fuelTypeCostMap,
+        context: context,
+      );
       final fuelTypeLegend = _fuelTypeLegend(fuelTypeCostMap: fuelTypeCostMap);
+      final stationSnapshots = _buildStationSnapshots(sortedEntries);
+      final tipOfTheDay = _tipOfTheDay();
       final performanceCards = <Widget>[
         SummaryCard(
           title: 'Average Mileage',
-          value: '${AppFormatters.number(controller.averageMileage, precision: precision)} $mileageUnit',
+          value:
+              '${AppFormatters.number(controller.averageMileage, precision: precision)} $mileageUnit',
           onInfoTap: () => _showCardInfo(
             context,
             title: 'Average Mileage',
-            description: 'Average of all valid mileage values from fuel entries after the first one.',
-            formula: 'Mileage per entry = Trip Distance / Fuel Quantity\nAverage Mileage = Sum of valid mileages / Number of valid mileage entries',
+            description:
+                'Average of all valid mileage values from fuel entries after the first one.',
+            formula:
+                'Mileage per entry = Trip Distance / Fuel Quantity\nAverage Mileage = Sum of valid mileages / Number of valid mileage entries',
           ),
         ),
         SummaryCard(
           title: 'Latest Mileage',
-          value: '${AppFormatters.number(controller.latestMileage, precision: precision)} $mileageUnit',
+          value:
+              '${AppFormatters.number(controller.latestMileage, precision: precision)} $mileageUnit',
           onInfoTap: () => _showCardInfo(
             context,
             title: 'Latest Mileage',
-            description: 'Mileage value from your most recent fuel entry that has a valid trip calculation.',
+            description:
+                'Mileage value from your most recent fuel entry that has a valid trip calculation.',
             formula: 'Latest Mileage = Mileage of most recent valid fuel log',
           ),
         ),
         SummaryCard(
           title: 'Total Distance',
-          value: '${AppFormatters.number(controller.totalDistance, precision: precision)} $distanceUnit',
+          value:
+              '${AppFormatters.number(controller.totalDistance, precision: precision)} $distanceUnit',
         ),
         SummaryCard(
           title: 'Fuel Consumed',
-          value: '${AppFormatters.number(controller.totalFuelConsumed, precision: precision)} $fuelUnit',
+          value:
+              '${AppFormatters.number(controller.totalFuelConsumed, precision: precision)} $fuelUnit',
         ),
-        SummaryCard(title: 'Total Refills', value: controller.totalRefills.toString()),
+        SummaryCard(
+          title: 'Total Refills',
+          value: controller.totalRefills.toString(),
+        ),
         SummaryCard(
           title: 'Best / Worst',
           value:
@@ -134,45 +173,57 @@ class DashboardView extends GetView<DashboardController> {
       final costCards = <Widget>[
         SummaryCard(
           title: 'Fuel Cost',
-          value: '$currency ${AppFormatters.number(controller.totalFuelCost, precision: precision)}',
+          value:
+              '$currency ${AppFormatters.number(controller.totalFuelCost, precision: precision)}',
         ),
         SummaryCard(
           title: 'This Month',
-          value: '$currency ${AppFormatters.number(controller.thisMonthExpense, precision: precision)}',
+          value:
+              '$currency ${AppFormatters.number(controller.thisMonthExpense, precision: precision)}',
         ),
         SummaryCard(
           title: 'Avg Refill Cost',
-          value: '$currency ${AppFormatters.number(controller.averageRefillCost, precision: precision)}',
+          value:
+              '$currency ${AppFormatters.number(controller.averageRefillCost, precision: precision)}',
         ),
         SummaryCard(
           title: 'Avg Cost / Distance',
-          value: '$costPerDistanceUnit ${AppFormatters.number(controller.averageCostPerDistance, precision: precision)}',
+          value:
+              '$costPerDistanceUnit ${AppFormatters.number(controller.averageCostPerDistance, precision: precision)}',
           onInfoTap: () => _showCardInfo(
             context,
             title: 'Average Cost per Distance',
-            description: 'Average fuel spending for each distance unit across valid entries.',
-            formula: 'Cost per distance (entry) = Total Cost / Trip Distance\nAverage = Sum of valid cost-per-distance values / Count',
+            description:
+                'Average fuel spending for each distance unit across valid entries.',
+            formula:
+                'Cost per distance (entry) = Total Cost / Trip Distance\nAverage = Sum of valid cost-per-distance values / Count',
           ),
         ),
         SummaryCard(
           title: 'Last 30 Days',
-          value: '$currency ${AppFormatters.number(controller.last30DaysExpense, precision: precision)}',
+          value:
+              '$currency ${AppFormatters.number(controller.last30DaysExpense, precision: precision)}',
           onInfoTap: () => _showCardInfo(
             context,
             title: 'Last 30 Days Expense',
-            description: 'Total fuel spending from entries in the most recent 30-day window.',
-            formula: 'Last 30 Days Expense = Sum of Total Cost for entries in last 30 days',
+            description:
+                'Total fuel spending from entries in the most recent 30-day window.',
+            formula:
+                'Last 30 Days Expense = Sum of Total Cost for entries in last 30 days',
           ),
         ),
         SummaryCard(
           title: '30D Change',
-          value: '${AppFormatters.number(controller.last30DaysExpenseChangePercent, precision: precision)}%',
+          value:
+              '${AppFormatters.number(controller.last30DaysExpenseChangePercent, precision: precision)}%',
           subtitle: 'vs previous 30 days',
           onInfoTap: () => _showCardInfo(
             context,
             title: '30-Day Change',
-            description: 'Compares current 30-day fuel expense against the previous 30-day period.',
-            formula: 'Change % = ((Current 30D Expense - Previous 30D Expense) / Previous 30D Expense) x 100',
+            description:
+                'Compares current 30-day fuel expense against the previous 30-day period.',
+            formula:
+                'Change % = ((Current 30D Expense - Previous 30D Expense) / Previous 30D Expense) x 100',
           ),
         ),
       ];
@@ -180,11 +231,13 @@ class DashboardView extends GetView<DashboardController> {
       final fuelProfileCards = <Widget>[
         SummaryCard(
           title: 'Fuel Consumed',
-          value: '${AppFormatters.number(controller.totalFuelConsumed, precision: precision)} $fuelUnit',
+          value:
+              '${AppFormatters.number(controller.totalFuelConsumed, precision: precision)} $fuelUnit',
         ),
         SummaryCard(
           title: 'Avg Trip Distance',
-          value: '${AppFormatters.number(controller.averageTripDistance, precision: precision)} $distanceUnit',
+          value:
+              '${AppFormatters.number(controller.averageTripDistance, precision: precision)} $distanceUnit',
         ),
       ];
 
@@ -194,7 +247,10 @@ class DashboardView extends GetView<DashboardController> {
         curve: Curves.easeOutCubic,
         builder: (context, value, child) => Opacity(
           opacity: value,
-          child: Transform.translate(offset: Offset(0, 14 * (1 - value)), child: child),
+          child: Transform.translate(
+            offset: Offset(0, 14 * (1 - value)),
+            child: child,
+          ),
         ),
         child: ListView(
           padding: const EdgeInsets.all(_dashboardPagePadding),
@@ -205,14 +261,23 @@ class DashboardView extends GetView<DashboardController> {
                 child: Card(
                   color: colorScheme.tertiaryContainer,
                   child: ListTile(
-                    title: Text('Refill Reminder', style: TextStyle(color: colorScheme.onTertiaryContainer)),
-                    subtitle: Text('Your refill interval threshold has been crossed.', style: TextStyle(color: colorScheme.onTertiaryContainer)),
+                    title: Text(
+                      'Refill Reminder',
+                      style: TextStyle(color: colorScheme.onTertiaryContainer),
+                    ),
+                    subtitle: Text(
+                      'Your refill interval threshold has been crossed.',
+                      style: TextStyle(color: colorScheme.onTertiaryContainer),
+                    ),
                   ),
                 ),
               ),
             _buildSegmentTitle(context, 'Performance'),
             const SizedBox(height: _dashboardSubsectionSpacing),
-            _buildSummarySegment(crossAxisCount: summaryCrossAxisCount, cards: performanceCards),
+            _buildSummarySegment(
+              crossAxisCount: summaryCrossAxisCount,
+              cards: performanceCards,
+            ),
             const SizedBox(height: _dashboardSectionSpacing),
             _buildLineChartSection(
               context: context,
@@ -226,9 +291,15 @@ class DashboardView extends GetView<DashboardController> {
             const SizedBox(height: _dashboardSectionSpacing),
             _buildSegmentTitle(context, 'Cost & Spending'),
             const SizedBox(height: _dashboardSubsectionSpacing),
-            _buildSummarySegment(crossAxisCount: summaryCrossAxisCount, cards: costCards),
+            _buildSummarySegment(
+              crossAxisCount: summaryCrossAxisCount,
+              cards: costCards,
+            ),
             const SizedBox(height: _dashboardSectionSpacing),
-            Text('Monthly Expense', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Monthly Expense',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: _dashboardSubsectionSpacing),
             SizedBox(
               height: _chartHeight,
@@ -240,7 +311,11 @@ class DashboardView extends GetView<DashboardController> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: SizedBox(
-                            width: _chartWidth(pointCount: expenseBars.length, minWidth: viewportWidth, pixelsPerPoint: _barChartPixelsPerPoint),
+                            width: _chartWidth(
+                              pointCount: expenseBars.length,
+                              minWidth: viewportWidth,
+                              pixelsPerPoint: _barChartPixelsPerPoint,
+                            ),
                             child: BarChart(
                               BarChartData(
                                 minY: 0,
@@ -248,8 +323,12 @@ class DashboardView extends GetView<DashboardController> {
                                 borderData: FlBorderData(show: false),
                                 gridData: const FlGridData(show: true),
                                 titlesData: FlTitlesData(
-                                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                  rightTitles: const AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
+                                  topTitles: const AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
                                   leftTitles: AxisTitles(
                                     axisNameWidget: const Text('Expense'),
                                     axisNameSize: _chartAxisNameSize,
@@ -257,11 +336,17 @@ class DashboardView extends GetView<DashboardController> {
                                       showTitles: true,
                                       reservedSize: _barYAxisReservedSize,
                                       interval: _barInterval(expenseBars),
-                                      getTitlesWidget: (value, meta) => SideTitleWidget(
-                                        meta: meta,
-                                        space: _chartAxisLabelSpace,
-                                        child: Text(value.toStringAsFixed(0), style: Theme.of(context).textTheme.labelSmall),
-                                      ),
+                                      getTitlesWidget: (value, meta) =>
+                                          SideTitleWidget(
+                                            meta: meta,
+                                            space: _chartAxisLabelSpace,
+                                            child: Text(
+                                              value.toStringAsFixed(0),
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.labelSmall,
+                                            ),
+                                          ),
                                     ),
                                   ),
                                   bottomTitles: AxisTitles(
@@ -271,13 +356,23 @@ class DashboardView extends GetView<DashboardController> {
                                       reservedSize: _chartXAxisReservedSize,
                                       getTitlesWidget: (value, meta) {
                                         final index = value.toInt();
-                                        if (index < 0 || index >= expenseMonths.length) {
+                                        if (index < 0 ||
+                                            index >= expenseMonths.length) {
                                           return const SizedBox.shrink();
                                         }
-                                        final label = DateFormat('MMM').format(expenseMonths[index]).toUpperCase();
+                                        final label = DateFormat('MMM')
+                                            .format(expenseMonths[index])
+                                            .toUpperCase();
                                         return Padding(
-                                          padding: const EdgeInsets.only(top: _chartXLabelTopPadding),
-                                          child: Text(label, style: Theme.of(context).textTheme.labelSmall),
+                                          padding: const EdgeInsets.only(
+                                            top: _chartXLabelTopPadding,
+                                          ),
+                                          child: Text(
+                                            label,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.labelSmall,
+                                          ),
                                         );
                                       },
                                     ),
@@ -304,7 +399,10 @@ class DashboardView extends GetView<DashboardController> {
             const SizedBox(height: _dashboardSectionSpacing),
             _buildSegmentTitle(context, 'Fuel Profile'),
             const SizedBox(height: _dashboardSubsectionSpacing),
-            _buildSummarySegment(crossAxisCount: summaryCrossAxisCount, cards: fuelProfileCards),
+            _buildSummarySegment(
+              crossAxisCount: summaryCrossAxisCount,
+              cards: fuelProfileCards,
+            ),
             const SizedBox(height: _dashboardSectionSpacing),
             _buildLineChartSection(
               context: context,
@@ -316,7 +414,10 @@ class DashboardView extends GetView<DashboardController> {
               color: Colors.teal,
             ),
             const SizedBox(height: _dashboardSectionSpacing),
-            Text('Fuel Type Cost Split', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Fuel Type Cost Split',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: _dashboardSubsectionSpacing),
             SizedBox(
               height: _chartHeight,
@@ -330,9 +431,16 @@ class DashboardView extends GetView<DashboardController> {
                           children: [
                             Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: _pieAreaHorizontalPadding, vertical: _pieAreaVerticalPadding),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: _pieAreaHorizontalPadding,
+                                  vertical: _pieAreaVerticalPadding,
+                                ),
                                 child: PieChart(
-                                  PieChartData(sectionsSpace: _pieSectionsSpace, centerSpaceRadius: _pieCenterSpaceRadius, sections: fuelTypeSections),
+                                  PieChartData(
+                                    sectionsSpace: _pieSectionsSpace,
+                                    centerSpaceRadius: _pieCenterSpaceRadius,
+                                    sections: fuelTypeSections,
+                                  ),
                                 ),
                               ),
                             ),
@@ -350,9 +458,14 @@ class DashboardView extends GetView<DashboardController> {
                                           Container(
                                             width: 10,
                                             height: 10,
-                                            decoration: BoxDecoration(color: item.value, shape: BoxShape.circle),
+                                            decoration: BoxDecoration(
+                                              color: item.value,
+                                              shape: BoxShape.circle,
+                                            ),
                                           ),
-                                          const SizedBox(width: _chartAxisLabelSpace),
+                                          const SizedBox(
+                                            width: _chartAxisLabelSpace,
+                                          ),
                                           Text(item.key),
                                         ],
                                       ),
@@ -365,15 +478,129 @@ class DashboardView extends GetView<DashboardController> {
                       ),
               ),
             ),
+            const SizedBox(height: _dashboardSectionSpacing),
+            Text(
+              'Fuel Station Snapshot',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: _dashboardSubsectionSpacing),
+            InkWell(
+              borderRadius: BorderRadius.circular(18),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const FuelStationReportView(),
+                  ),
+                );
+              },
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: stationSnapshots.isEmpty
+                      ? const Text('No station-based entries yet.')
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Top stations by total spend',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: 10),
+                            ...stationSnapshots
+                                .take(3)
+                                .map(
+                                  (item) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            item.station,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '${item.refills} refills',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          '$currency ${AppFormatters.number(item.totalCost, precision: precision)}',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodyMedium,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            Text(
+                              'Most used station: ${stationSnapshots.first.station}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+            const SizedBox(height: _dashboardSectionSpacing),
+            Text(
+              'Tip of the Day',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: _dashboardSubsectionSpacing),
+            InkWell(
+              borderRadius: BorderRadius.circular(18),
+              onTap: () {
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const TipsView()));
+              },
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tipOfTheDay.title,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        tipOfTheDay.description,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       );
     });
   }
 
-  Widget _buildSummarySegment({required int crossAxisCount, required List<Widget> cards}) {
+  Widget _buildSummarySegment({
+    required int crossAxisCount,
+    required List<Widget> cards,
+  }) {
     return MasonryGridView.builder(
-      gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount),
+      gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+      ),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: _summaryGridSpacing,
@@ -383,33 +610,56 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  void _showCardInfo(BuildContext context, {required String title, required String description, required String formula}) {
+  void _showCardInfo(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required String formula,
+  }) {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [Expanded(child: Text(title, style: Theme.of(context).textTheme.titleLarge))],
-            ),
-            const SizedBox(height: 10),
-            Text(description, style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 12),
-            Text('How it is calculated', style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 6),
-            Text(formula, style: Theme.of(context).textTheme.bodySmall),
-          ],
+      builder: (context) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(description, style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 12),
+              Text(
+                'How it is calculated',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 6),
+              Text(formula, style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildSegmentTitle(BuildContext context, String title) {
-    return Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700));
+    return Text(
+      title,
+      style: Theme.of(
+        context,
+      ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+    );
   }
 
   Widget _buildLineChartSection({
@@ -436,18 +686,28 @@ class DashboardView extends GetView<DashboardController> {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: SizedBox(
-                        width: _chartWidth(pointCount: spots.length, minWidth: minWidth, pixelsPerPoint: _lineChartPixelsPerPoint),
+                        width: _chartWidth(
+                          pointCount: spots.length,
+                          minWidth: minWidth,
+                          pixelsPerPoint: _lineChartPixelsPerPoint,
+                        ),
                         child: LineChart(
                           LineChartData(
                             minX: 0,
-                            maxX: spots.length > 1 ? (spots.length - 1).toDouble() : 1,
+                            maxX: spots.length > 1
+                                ? (spots.length - 1).toDouble()
+                                : 1,
                             minY: _lineMinY(spots),
                             maxY: _lineMaxY(spots),
                             borderData: FlBorderData(show: false),
                             gridData: const FlGridData(show: true),
                             titlesData: FlTitlesData(
-                              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              rightTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              topTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
                               leftTitles: AxisTitles(
                                 axisNameWidget: Text(yAxisTitle),
                                 axisNameSize: _chartAxisNameSize,
@@ -455,11 +715,17 @@ class DashboardView extends GetView<DashboardController> {
                                   showTitles: true,
                                   reservedSize: _lineYAxisReservedSize,
                                   interval: _lineInterval(spots),
-                                  getTitlesWidget: (value, meta) => SideTitleWidget(
-                                    meta: meta,
-                                    space: _chartAxisLabelSpace,
-                                    child: Text(value.toStringAsFixed(0), style: Theme.of(context).textTheme.labelSmall),
-                                  ),
+                                  getTitlesWidget: (value, meta) =>
+                                      SideTitleWidget(
+                                        meta: meta,
+                                        space: _chartAxisLabelSpace,
+                                        child: Text(
+                                          value.toStringAsFixed(0),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.labelSmall,
+                                        ),
+                                      ),
                                 ),
                               ),
                               bottomTitles: AxisTitles(
@@ -469,16 +735,34 @@ class DashboardView extends GetView<DashboardController> {
                                   reservedSize: _chartXAxisReservedSize,
                                   interval: 1,
                                   getTitlesWidget: (value, meta) {
-                                    final label = _entryMonthLabel(value: value, entries: sourceEntries);
+                                    final label = _entryMonthLabel(
+                                      value: value,
+                                      entries: sourceEntries,
+                                    );
                                     return Padding(
-                                      padding: const EdgeInsets.only(top: _chartXLabelTopPadding),
-                                      child: Text(label, style: Theme.of(context).textTheme.labelSmall),
+                                      padding: const EdgeInsets.only(
+                                        top: _chartXLabelTopPadding,
+                                      ),
+                                      child: Text(
+                                        label,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelSmall,
+                                      ),
                                     );
                                   },
                                 ),
                               ),
                             ),
-                            lineBarsData: [LineChartBarData(spots: spots, isCurved: true, dotData: const FlDotData(show: false), barWidth: 3, color: color)],
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots: spots,
+                                isCurved: true,
+                                dotData: const FlDotData(show: false),
+                                barWidth: 3,
+                                color: color,
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -490,9 +774,14 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  String _entryMonthLabel({required double value, required List<FuelLogEntry> entries}) {
+  String _entryMonthLabel({
+    required double value,
+    required List<FuelLogEntry> entries,
+  }) {
     final index = value.toInt();
-    if (index < 0 || index >= entries.length || (value - index.toDouble()).abs() > 0.01) {
+    if (index < 0 ||
+        index >= entries.length ||
+        (value - index.toDouble()).abs() > 0.01) {
       return '';
     }
 
@@ -505,7 +794,8 @@ class DashboardView extends GetView<DashboardController> {
     }
 
     final previous = entries[index - 1].date;
-    final changedMonth = current.month != previous.month || current.year != previous.year;
+    final changedMonth =
+        current.month != previous.month || current.year != previous.year;
     if (!changedMonth) {
       return '';
     }
@@ -513,15 +803,26 @@ class DashboardView extends GetView<DashboardController> {
     return DateFormat('MMM').format(current).toUpperCase();
   }
 
-  List<PieChartSectionData> _fuelTypeSections({required Map<String, double> fuelTypeCostMap, required BuildContext context}) {
+  List<PieChartSectionData> _fuelTypeSections({
+    required Map<String, double> fuelTypeCostMap,
+    required BuildContext context,
+  }) {
     if (fuelTypeCostMap.isEmpty) {
       return [];
     }
 
-    final colors = [Colors.blue, Colors.orange, Colors.green, Colors.pink, Colors.indigo, Colors.brown];
+    final colors = [
+      Colors.blue,
+      Colors.orange,
+      Colors.green,
+      Colors.pink,
+      Colors.indigo,
+      Colors.brown,
+    ];
 
     final total = fuelTypeCostMap.values.fold(0.0, (sum, value) => sum + value);
-    final entries = fuelTypeCostMap.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final entries = fuelTypeCostMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
 
     return List<PieChartSectionData>.generate(entries.length, (index) {
       final item = entries[index];
@@ -531,18 +832,34 @@ class DashboardView extends GetView<DashboardController> {
         value: item.value,
         radius: _pieSectionRadius,
         title: '${percent.toStringAsFixed(0)}%',
-        titleStyle: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+        titleStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       );
     });
   }
 
-  List<MapEntry<String, Color>> _fuelTypeLegend({required Map<String, double> fuelTypeCostMap}) {
+  List<MapEntry<String, Color>> _fuelTypeLegend({
+    required Map<String, double> fuelTypeCostMap,
+  }) {
     if (fuelTypeCostMap.isEmpty) {
       return [];
     }
-    final colors = [Colors.blue, Colors.orange, Colors.green, Colors.pink, Colors.indigo, Colors.brown];
-    final entries = fuelTypeCostMap.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-    return List<MapEntry<String, Color>>.generate(entries.length, (index) => MapEntry(entries[index].key, colors[index % colors.length]));
+    final colors = [
+      Colors.blue,
+      Colors.orange,
+      Colors.green,
+      Colors.pink,
+      Colors.indigo,
+      Colors.brown,
+    ];
+    final entries = fuelTypeCostMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return List<MapEntry<String, Color>>.generate(
+      entries.length,
+      (index) => MapEntry(entries[index].key, colors[index % colors.length]),
+    );
   }
 
   double _lineInterval(List<FlSpot> spots) {
@@ -557,14 +874,18 @@ class DashboardView extends GetView<DashboardController> {
 
   double _barInterval(List<BarChartGroupData> bars) {
     if (bars.isEmpty) return 1;
-    final max = bars.map((group) => group.barRods.first.toY).reduce((a, b) => a > b ? a : b);
+    final max = bars
+        .map((group) => group.barRods.first.toY)
+        .reduce((a, b) => a > b ? a : b);
     if (max <= 4) return 1;
     return (max / 4).clamp(1, 999999).toDouble();
   }
 
   double _barMaxY(List<BarChartGroupData> bars) {
     if (bars.isEmpty) return 1;
-    final max = bars.map((group) => group.barRods.first.toY).reduce((a, b) => a > b ? a : b);
+    final max = bars
+        .map((group) => group.barRods.first.toY)
+        .reduce((a, b) => a > b ? a : b);
     if (max <= 0) return 1;
     return max * 1.15;
   }
@@ -588,7 +909,11 @@ class DashboardView extends GetView<DashboardController> {
     return max + padding;
   }
 
-  double _chartWidth({required int pointCount, required double minWidth, required double pixelsPerPoint}) {
+  double _chartWidth({
+    required int pointCount,
+    required double minWidth,
+    required double pixelsPerPoint,
+  }) {
     if (pointCount <= 1) return minWidth;
     final computed = pointCount * pixelsPerPoint;
     return computed < minWidth ? minWidth : computed;
@@ -601,4 +926,55 @@ class DashboardView extends GetView<DashboardController> {
   String _fuelUnitLabel(FuelUnit? unit) {
     return unit == FuelUnit.gallons ? 'Gallons' : 'Liters';
   }
+
+  List<_StationSnapshot> _buildStationSnapshots(List<FuelLogEntry> entries) {
+    final grouped = <String, List<FuelLogEntry>>{};
+    for (final entry in entries) {
+      final station = entry.stationName?.trim() ?? '';
+      if (station.isEmpty) continue;
+      grouped.putIfAbsent(station, () => <FuelLogEntry>[]).add(entry);
+    }
+
+    final rows = grouped.entries.map((group) {
+      final logs = group.value;
+      return _StationSnapshot(
+        station: group.key,
+        refills: logs.length,
+        totalCost: logs.fold(0.0, (sum, item) => sum + item.totalCost),
+      );
+    }).toList();
+
+    rows.sort((a, b) => b.totalCost.compareTo(a.totalCost));
+    return rows;
+  }
+
+  AppTip _tipOfTheDay() {
+    final allTips = [
+      ...AppTipsDatabase.fuelTips,
+      ...AppTipsDatabase.maintenanceTips,
+    ];
+    if (allTips.isEmpty) {
+      return const AppTip(
+        title: 'No tips available',
+        description: 'Tips database is empty.',
+      );
+    }
+
+    final now = DateTime.now();
+    final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays;
+    final index = dayOfYear % allTips.length;
+    return allTips[index];
+  }
+}
+
+class _StationSnapshot {
+  const _StationSnapshot({
+    required this.station,
+    required this.refills,
+    required this.totalCost,
+  });
+
+  final String station;
+  final int refills;
+  final double totalCost;
 }

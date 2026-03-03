@@ -17,7 +17,16 @@ class FuelStationReportView extends GetView<FuelController> {
     final settingsController = Get.find<SettingsController>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Fuel Station Report')),
+      appBar: AppBar(
+        title: const Text('Fuel Station Report'),
+        actions: [
+          IconButton(
+            tooltip: 'How this report works',
+            icon: const Icon(Icons.info_outline),
+            onPressed: () => _showReportInfo(context),
+          ),
+        ],
+      ),
       body: Obx(() {
         final bike = bikeController.activeBike;
         final entries = controller.entries;
@@ -277,6 +286,70 @@ class FuelStationReportView extends GetView<FuelController> {
 
   String _fuelUnitLabel(FuelUnit? unit) {
     return unit == FuelUnit.gallons ? 'Gallons' : 'Liters';
+  }
+
+  void _showReportInfo(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'How Station Report Is Calculated',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Each station groups entries by Station Name from fuel logs of the active bike only.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
+              Text('Metrics', style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 6),
+              Text(
+                'Refills: Number of entries for that station.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              Text(
+                'Fuel: Sum of Fuel Quantity across that station.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              Text(
+                'Cost: Sum of Total Cost across that station.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              Text(
+                'Avg Price/Unit: Total Cost / Total Fuel.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              Text(
+                'Distance: Sum of Trip Distance where available.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              Text(
+                'Avg Mileage: Average of valid mileage values for that station.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              Text(
+                'Last Refill: Latest date among entries for that station.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Stations are sorted by total spend (highest first).',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
