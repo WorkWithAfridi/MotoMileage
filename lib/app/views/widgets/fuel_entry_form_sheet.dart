@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants.dart';
+import '../../controllers/bike_controller.dart';
 import '../../controllers/fuel_controller.dart';
+import '../../controllers/settings_controller.dart';
 import '../../models/fuel_log_entry.dart';
 import 'app_dropdown_form_field.dart';
 
@@ -54,6 +56,12 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
   @override
   Widget build(BuildContext context) {
     final fuelController = Get.find<FuelController>();
+    final bikeController = Get.find<BikeController>();
+    final settingsController = Get.find<SettingsController>();
+    final activeBike = bikeController.activeBike;
+    final distanceUnit = _distanceUnitLabel(activeBike?.distanceUnit);
+    final fuelUnit = _fuelUnitLabel(activeBike?.fuelUnit);
+    final currency = settingsController.settings.value.currencySymbol.toUpperCase();
 
     return Padding(
       padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -69,21 +77,21 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
               TextFormField(
                 controller: _odometerController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Odometer'),
+                decoration: InputDecoration(labelText: 'Odometer', suffixText: distanceUnit),
                 validator: (value) => (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
               ),
               const SizedBox(height: 18),
               TextFormField(
                 controller: _quantityController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Fuel Quantity'),
+                decoration: InputDecoration(labelText: 'Fuel Quantity', suffixText: fuelUnit),
                 validator: (value) => (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
               ),
               const SizedBox(height: 18),
               TextFormField(
                 controller: _costController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Total Cost'),
+                decoration: InputDecoration(labelText: 'Total Cost', suffixText: currency),
                 validator: (value) => (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
               ),
               const SizedBox(height: 18),
@@ -93,7 +101,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                 label: Text(_showOptional ? 'Hide Optional' : 'Show Optional'),
               ),
               if (_showOptional) ...[
-                const SizedBox(height: 18),
+                const SizedBox(height: 24),
                 AppDropdownFormField<FuelType?>(
                   initialValue: _fuelType,
                   decoration: const InputDecoration(labelText: 'Fuel Type'),
@@ -192,5 +200,13 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
         ),
       ),
     );
+  }
+
+  String _distanceUnitLabel(DistanceUnit? unit) {
+    return unit == DistanceUnit.miles ? 'MILES' : 'KM';
+  }
+
+  String _fuelUnitLabel(FuelUnit? unit) {
+    return unit == FuelUnit.gallons ? 'GALLONS' : 'LITERS';
   }
 }
