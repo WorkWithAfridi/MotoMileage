@@ -16,6 +16,7 @@ import '../services/csv_export_service.dart';
 import '../services/demo_data_service.dart';
 import '../services/local_storage_service.dart';
 import 'fuel_station_report_view.dart';
+import 'onboarding_view.dart';
 import 'tips_view.dart';
 import 'widgets/app_dropdown_form_field.dart';
 
@@ -34,7 +35,9 @@ class SettingsView extends GetView<SettingsController> {
 
     return Obx(() {
       final current = controller.settings.value;
-      final refillDistanceUnit = _distanceUnitLabel(current.defaultDistanceUnit);
+      final refillDistanceUnit = _distanceUnitLabel(
+        current.defaultDistanceUnit,
+      );
       return GestureDetector(
         onTap: () {
           FocusManager.instance.primaryFocus?.unfocus();
@@ -48,11 +51,16 @@ class SettingsView extends GetView<SettingsController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Preferences', style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Preferences',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 12),
                     TextFormField(
                       initialValue: current.currencySymbol,
-                      decoration: const InputDecoration(labelText: 'Currency Symbol'),
+                      decoration: const InputDecoration(
+                        labelText: 'Currency Symbol',
+                      ),
                       onChanged: (value) {
                         final trimmed = value.trim();
                         if (trimmed.isEmpty) return;
@@ -62,8 +70,17 @@ class SettingsView extends GetView<SettingsController> {
                     const SizedBox(height: 18),
                     AppDropdownFormField<int>(
                       initialValue: current.decimalPrecision,
-                      decoration: const InputDecoration(labelText: 'Decimal Precision'),
-                      items: const [0, 1, 2, 3, 4].map((value) => DropdownMenuItem(value: value, child: Text('$value'))).toList(),
+                      decoration: const InputDecoration(
+                        labelText: 'Decimal Precision',
+                      ),
+                      items: const [0, 1, 2, 3, 4]
+                          .map(
+                            (value) => DropdownMenuItem(
+                              value: value,
+                              child: Text('$value'),
+                            ),
+                          )
+                          .toList(),
                       onChanged: (value) {
                         if (value != null) {
                           controller.updateDecimalPrecision(value);
@@ -73,8 +90,17 @@ class SettingsView extends GetView<SettingsController> {
                     const SizedBox(height: 18),
                     AppDropdownFormField<DistanceUnit>(
                       initialValue: current.defaultDistanceUnit,
-                      decoration: const InputDecoration(labelText: 'Default Distance Unit'),
-                      items: DistanceUnit.values.map((unit) => DropdownMenuItem(value: unit, child: Text(unit.name.toUpperCase()))).toList(),
+                      decoration: const InputDecoration(
+                        labelText: 'Default Distance Unit',
+                      ),
+                      items: DistanceUnit.values
+                          .map(
+                            (unit) => DropdownMenuItem(
+                              value: unit,
+                              child: Text(unit.name.toUpperCase()),
+                            ),
+                          )
+                          .toList(),
                       onChanged: (value) {
                         if (value != null) {
                           controller.updateDefaultDistanceUnit(value);
@@ -84,8 +110,17 @@ class SettingsView extends GetView<SettingsController> {
                     const SizedBox(height: 18),
                     AppDropdownFormField<FuelUnit>(
                       initialValue: current.defaultFuelUnit,
-                      decoration: const InputDecoration(labelText: 'Default Fuel Unit'),
-                      items: FuelUnit.values.map((unit) => DropdownMenuItem(value: unit, child: Text(unit.name.toUpperCase()))).toList(),
+                      decoration: const InputDecoration(
+                        labelText: 'Default Fuel Unit',
+                      ),
+                      items: FuelUnit.values
+                          .map(
+                            (unit) => DropdownMenuItem(
+                              value: unit,
+                              child: Text(unit.name.toUpperCase()),
+                            ),
+                          )
+                          .toList(),
                       onChanged: (value) {
                         if (value != null) {
                           controller.updateDefaultFuelUnit(value);
@@ -107,12 +142,20 @@ class SettingsView extends GetView<SettingsController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Reminders', style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Reminders',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 12),
                     TextFormField(
                       initialValue: current.refillReminderInterval.toString(),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: InputDecoration(labelText: 'Refill Reminder Interval', suffixText: refillDistanceUnit),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: 'Refill Reminder Interval',
+                        suffixText: refillDistanceUnit,
+                      ),
                       onChanged: (value) {
                         final parsed = double.tryParse(value);
                         if (parsed != null && parsed > 0) {
@@ -131,12 +174,59 @@ class SettingsView extends GetView<SettingsController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Theme', style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Learn',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Revisit onboarding walkthrough anytime.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.tonalIcon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const OnboardingView(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.explore_outlined),
+                        label: const Text('Open Onboarding'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Theme',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 12),
                     AppDropdownFormField<AppThemePreset>(
                       initialValue: current.themePreset,
-                      decoration: const InputDecoration(labelText: 'Color Theme'),
-                      items: AppThemePreset.values.map((preset) => DropdownMenuItem(value: preset, child: Text(_themePresetLabel(preset)))).toList(),
+                      decoration: const InputDecoration(
+                        labelText: 'Color Theme',
+                      ),
+                      items: AppThemePreset.values
+                          .map(
+                            (preset) => DropdownMenuItem(
+                              value: preset,
+                              child: Text(_themePresetLabel(preset)),
+                            ),
+                          )
+                          .toList(),
                       onChanged: (value) {
                         if (value != null) {
                           controller.updateThemePreset(value);
@@ -154,15 +244,25 @@ class SettingsView extends GetView<SettingsController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Data Management', style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Data Management',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 10),
                     FilledButton.tonal(
                       onPressed: () async {
-                        final csv = csvService.buildFuelLogsCsv(fuelController.entries);
+                        final csv = csvService.buildFuelLogsCsv(
+                          fuelController.entries,
+                        );
                         final dir = await getTemporaryDirectory();
                         final file = File('${dir.path}/fuel_logs.csv');
                         await file.writeAsString(csv);
-                        await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], text: 'Moto Mileage fuel logs CSV export'));
+                        await SharePlus.instance.share(
+                          ShareParams(
+                            files: [XFile(file.path)],
+                            text: 'Moto Mileage fuel logs CSV export',
+                          ),
+                        );
                       },
                       child: const Text('Export Current Bike Logs (CSV)'),
                     ),
@@ -171,9 +271,16 @@ class SettingsView extends GetView<SettingsController> {
                       onPressed: () async {
                         final json = backupService.exportBackupJson();
                         final dir = await getTemporaryDirectory();
-                        final file = File('${dir.path}/motomileage_backup.json');
+                        final file = File(
+                          '${dir.path}/motomileage_backup.json',
+                        );
                         await file.writeAsString(json);
-                        await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], text: 'Moto Mileage backup JSON'));
+                        await SharePlus.instance.share(
+                          ShareParams(
+                            files: [XFile(file.path)],
+                            text: 'Moto Mileage backup JSON',
+                          ),
+                        );
                       },
                       child: const Text('Backup All Data (JSON)'),
                     ),
@@ -189,11 +296,22 @@ class SettingsView extends GetView<SettingsController> {
                               controller: textController,
                               minLines: 6,
                               maxLines: 10,
-                              decoration: const InputDecoration(hintText: 'Paste backup JSON', border: OutlineInputBorder()),
+                              decoration: const InputDecoration(
+                                hintText: 'Paste backup JSON',
+                                border: OutlineInputBorder(),
+                              ),
                             ),
                             actions: [
-                              TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-                              FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Restore')),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              FilledButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: const Text('Restore'),
+                              ),
                             ],
                           ),
                         );
@@ -203,12 +321,17 @@ class SettingsView extends GetView<SettingsController> {
                         }
 
                         try {
-                          await backupService.restoreBackupJson(textController.text);
+                          await backupService.restoreBackupJson(
+                            textController.text,
+                          );
                           controller.reload();
                           await bikeController.reload();
                           await fuelController.reloadActiveBike();
                           await maintenanceController.reloadActiveBike();
-                          Get.snackbar('Restored', 'Backup restored successfully.');
+                          Get.snackbar(
+                            'Restored',
+                            'Backup restored successfully.',
+                          );
                         } catch (_) {
                           Get.snackbar('Error', 'Backup JSON is invalid.');
                         }
@@ -226,7 +349,10 @@ class SettingsView extends GetView<SettingsController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Demo Tools', style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Demo Tools',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 10),
                     FilledButton(
                       onPressed: () async {
@@ -238,9 +364,17 @@ class SettingsView extends GetView<SettingsController> {
                               'This will replace your current local data with demo entries. Your current data will be lost forever. Are you sure?',
                             ),
                             actions: [
-                              FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Replace & Load')),
+                              FilledButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: const Text('Replace & Load'),
+                              ),
                               SizedBox(height: 10),
-                              OutlinedButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+                              OutlinedButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
                             ],
                           ),
                         );
@@ -254,7 +388,10 @@ class SettingsView extends GetView<SettingsController> {
                         await bikeController.reload();
                         await fuelController.reloadActiveBike();
                         await maintenanceController.reloadActiveBike();
-                        Get.snackbar('Demo Ready', 'Sample data loaded for testing.');
+                        Get.snackbar(
+                          'Demo Ready',
+                          'Sample data loaded for testing.',
+                        );
                       },
                       child: const Text('Load Demo Data'),
                     ),
@@ -269,23 +406,40 @@ class SettingsView extends GetView<SettingsController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Danger Zone', style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Danger Zone',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 10),
                     FilledButton.tonal(
                       style: FilledButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.errorContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onErrorContainer,
                       ),
                       onPressed: () async {
                         final confirmed = await showDialog<bool>(
                           context: context,
                           builder: (context) => AlertDialog(
                             title: const Text('Reset All Data'),
-                            content: const Text('This will permanently delete all bikes, fuel logs, maintenance logs, and settings from this device.'),
+                            content: const Text(
+                              'This will permanently delete all bikes, fuel logs, maintenance logs, and settings from this device.',
+                            ),
                             actions: [
-                              FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Reset')),
+                              FilledButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: const Text('Reset'),
+                              ),
                               SizedBox(height: 10),
-                              OutlinedButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+                              OutlinedButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
                             ],
                           ),
                         );
@@ -300,7 +454,10 @@ class SettingsView extends GetView<SettingsController> {
                         await fuelController.reloadActiveBike();
                         await maintenanceController.reloadActiveBike();
 
-                        Get.snackbar('Data Reset', 'All local app data has been removed.');
+                        Get.snackbar(
+                          'Data Reset',
+                          'All local app data has been removed.',
+                        );
                       },
                       child: const Text('Reset All Data'),
                     ),
@@ -357,7 +514,9 @@ class _TipsSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalTips = AppTipsDatabase.fuelTips.length + AppTipsDatabase.maintenanceTips.length;
+    final totalTips =
+        AppTipsDatabase.fuelTips.length +
+        AppTipsDatabase.maintenanceTips.length;
 
     return Card(
       child: Padding(
@@ -367,15 +526,25 @@ class _TipsSectionCard extends StatelessWidget {
           children: [
             Text('Tips', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 6),
-            Text('Browse local fuel and maintenance tip databases.', style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              'Browse local fuel and maintenance tip databases.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             const SizedBox(height: 8),
-            Text('$totalTips tips available', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
+            Text(
+              '$totalTips tips available',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: FilledButton.tonalIcon(
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TipsView()));
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => const TipsView()));
                 },
                 icon: const Icon(Icons.menu_book_outlined),
                 label: const Text('Open Tips'),
@@ -399,7 +568,10 @@ class _FuelStationReportSectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fuelController = Get.find<FuelController>();
-    final stations = fuelController.entries.map((entry) => (entry.stationName ?? '').trim()).where((name) => name.isNotEmpty).toSet();
+    final stations = fuelController.entries
+        .map((entry) => (entry.stationName ?? '').trim())
+        .where((name) => name.isNotEmpty)
+        .toSet();
 
     return Card(
       child: Padding(
@@ -407,17 +579,32 @@ class _FuelStationReportSectionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Fuel Station Reports', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Fuel Station Reports',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 6),
-            Text('Analyze station-wise fuel usage, spend, and mileage performance.', style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              'Analyze station-wise fuel usage, spend, and mileage performance.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             const SizedBox(height: 8),
-            Text('${stations.length} stations in current bike logs', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
+            Text(
+              '${stations.length} stations in current bike logs',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: FilledButton.tonalIcon(
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const FuelStationReportView()));
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const FuelStationReportView(),
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.local_gas_station_outlined),
                 label: const Text('Open Fuel Station Report'),
