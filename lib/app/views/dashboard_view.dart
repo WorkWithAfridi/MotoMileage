@@ -287,6 +287,10 @@ class DashboardView extends GetView<DashboardController> {
               yAxisTitle: 'Mileage',
               minWidth: viewportWidth,
               color: Theme.of(context).colorScheme.primary,
+              infoDescription:
+                  'Shows mileage per refill over time to highlight efficiency trends.',
+              infoFormula:
+                  'Mileage per entry = Trip Distance / Fuel Quantity\nEach point = one valid fuel log ordered by date',
             ),
             const SizedBox(height: _dashboardSectionSpacing),
             _buildSegmentTitle(context, 'Cost & Spending'),
@@ -296,9 +300,17 @@ class DashboardView extends GetView<DashboardController> {
               cards: costCards,
             ),
             const SizedBox(height: _dashboardSectionSpacing),
-            Text(
-              'Monthly Expense',
-              style: Theme.of(context).textTheme.titleMedium,
+            _buildChartTitleWithInfo(
+              context: context,
+              title: 'Monthly Expense',
+              onInfoTap: () => _showCardInfo(
+                context,
+                title: 'Monthly Expense',
+                description:
+                    'Shows how much you spend on fuel each month based on your logged entries.',
+                formula:
+                    'Monthly Expense = Sum of Total Cost for all entries in that month',
+              ),
             ),
             const SizedBox(height: _dashboardSubsectionSpacing),
             SizedBox(
@@ -395,6 +407,10 @@ class DashboardView extends GetView<DashboardController> {
               yAxisTitle: 'Cost/Dist',
               minWidth: viewportWidth,
               color: Colors.deepOrange,
+              infoDescription:
+                  'Shows fuel cost efficiency over time as cost per distance unit.',
+              infoFormula:
+                  'Cost per distance (entry) = Total Cost / Trip Distance\nEach point = one valid fuel log ordered by date',
             ),
             const SizedBox(height: _dashboardSectionSpacing),
             _buildSegmentTitle(context, 'Fuel Profile'),
@@ -412,11 +428,23 @@ class DashboardView extends GetView<DashboardController> {
               yAxisTitle: 'Fuel Qty',
               minWidth: viewportWidth,
               color: Colors.teal,
+              infoDescription:
+                  'Shows how much fuel is filled on each logged refill over time.',
+              infoFormula:
+                  'Each point = Fuel Quantity value from one fuel entry, ordered by date',
             ),
             const SizedBox(height: _dashboardSectionSpacing),
-            Text(
-              'Fuel Type Cost Split',
-              style: Theme.of(context).textTheme.titleMedium,
+            _buildChartTitleWithInfo(
+              context: context,
+              title: 'Fuel Type Cost Split',
+              onInfoTap: () => _showCardInfo(
+                context,
+                title: 'Fuel Type Cost Split',
+                description:
+                    'Shows the share of total fuel spending by fuel type.',
+                formula:
+                    'Type Share % = (Total Cost for Fuel Type / Total Fuel Cost) x 100',
+              ),
             ),
             const SizedBox(height: _dashboardSubsectionSpacing),
             SizedBox(
@@ -641,7 +669,7 @@ class DashboardView extends GetView<DashboardController> {
               Text(description, style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 12),
               Text(
-                'How it is calculated',
+                'How this metric is derived',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 6),
@@ -670,11 +698,22 @@ class DashboardView extends GetView<DashboardController> {
     required String yAxisTitle,
     required double minWidth,
     required Color color,
+    required String infoDescription,
+    required String infoFormula,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        _buildChartTitleWithInfo(
+          context: context,
+          title: title,
+          onInfoTap: () => _showCardInfo(
+            context,
+            title: title,
+            description: infoDescription,
+            formula: infoFormula,
+          ),
+        ),
         const SizedBox(height: _dashboardSubsectionSpacing),
         SizedBox(
           height: _chartHeight,
@@ -768,6 +807,41 @@ class DashboardView extends GetView<DashboardController> {
                       ),
                     ),
                   ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChartTitleWithInfo({
+    required BuildContext context,
+    required String title,
+    required VoidCallback onInfoTap,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(width: 4),
+        InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: onInfoTap,
+          child: Container(
+            width: 18,
+            height: 18,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '?',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ),
       ],
