@@ -17,9 +17,9 @@ class DemoDataService {
       Bike(
         id: 'bike_demo_1',
         name: 'Dhaka Commute',
-        manufacturer: 'Honda',
-        model: 'CBR 150R',
-        year: 2022,
+        manufacturer: 'Yamaha',
+        model: 'R15M',
+        year: 2023,
         distanceUnit: DistanceUnit.km,
         fuelUnit: FuelUnit.liters,
         createdAt: now.subtract(const Duration(days: 410)),
@@ -53,6 +53,16 @@ class DemoDataService {
         distanceUnit: DistanceUnit.km,
         fuelUnit: FuelUnit.liters,
         createdAt: now.subtract(const Duration(days: 250)),
+      ),
+      Bike(
+        id: 'bike_demo_5',
+        name: 'CBR Legacy',
+        manufacturer: 'Honda',
+        model: 'CBR 150R',
+        year: 2022,
+        distanceUnit: DistanceUnit.km,
+        fuelUnit: FuelUnit.liters,
+        createdAt: now.subtract(const Duration(days: 300)),
       ),
     ];
 
@@ -172,6 +182,34 @@ class DemoDataService {
         1: 'Trip to Cumilla',
         9: 'Long run to Chattogram',
         15: 'Higher fuel use with highway speed',
+      },
+    );
+
+    final bike5Fuel = _buildFuelSeries(
+      bikeId: 'bike_demo_5',
+      idPrefix: 'fuel_cbr',
+      count: 16,
+      startOdometer: 11320,
+      startDate: now.subtract(const Duration(days: 205)),
+      avgTripKm: 175,
+      avgFuelLiters: 4.3,
+      stationNames: const [
+        'Padma Oil - Dhanmondi',
+        'Jamuna Pump - Science Lab',
+        'Meghna Fuel - Shahbagh',
+        'Omera Pump - Moghbazar',
+        'TK Filling - Jatrabari',
+      ],
+      fuelTypes: const [
+        FuelType.octane,
+        FuelType.petrol,
+        FuelType.octane,
+        FuelType.petrol,
+      ],
+      notesByIndex: {
+        3: 'Evening city run',
+        10: 'Ride to Savar',
+        14: 'Traffic-heavy day',
       },
     );
 
@@ -301,6 +339,35 @@ class DemoDataService {
       ),
     ];
 
+    final bike5Maintenance = [
+      MaintenanceEntry(
+        id: 'mnt_cbr_1',
+        bikeId: 'bike_demo_5',
+        type: MaintenanceType.oilChange,
+        odometer: 12100,
+        date: now.subtract(const Duration(days: 132)),
+        notes: 'Scheduled oil + filter service',
+        nextDueOdometer: 13600,
+      ),
+      MaintenanceEntry(
+        id: 'mnt_cbr_2',
+        bikeId: 'bike_demo_5',
+        type: MaintenanceType.chainLube,
+        odometer: 12740,
+        date: now.subtract(const Duration(days: 86)),
+        notes: 'Chain clean and lube',
+        nextDueOdometer: 13240,
+      ),
+      MaintenanceEntry(
+        id: 'mnt_cbr_3',
+        bikeId: 'bike_demo_5',
+        type: MaintenanceType.sparkPlug,
+        odometer: 13020,
+        date: now.subtract(const Duration(days: 40)),
+        notes: 'Spark plug replaced for smooth pickup',
+      ),
+    ];
+
     await _storage.clear();
 
     await _storage.setJsonList(
@@ -326,6 +393,10 @@ class DemoDataService {
       StorageKeys.fuelLogs('bike_demo_4'),
       bike4Fuel.map((entry) => entry.toMap()).toList(),
     );
+    await _storage.setJsonList(
+      StorageKeys.fuelLogs('bike_demo_5'),
+      bike5Fuel.map((entry) => entry.toMap()).toList(),
+    );
 
     await _storage.setJsonList(
       StorageKeys.maintenance('bike_demo_1'),
@@ -342,6 +413,10 @@ class DemoDataService {
     await _storage.setJsonList(
       StorageKeys.maintenance('bike_demo_4'),
       bike4Maintenance.map((entry) => entry.toMap()).toList(),
+    );
+    await _storage.setJsonList(
+      StorageKeys.maintenance('bike_demo_5'),
+      bike5Maintenance.map((entry) => entry.toMap()).toList(),
     );
   }
 
