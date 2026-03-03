@@ -21,12 +21,13 @@ const double _dashboardSectionSpacing = 12;
 const double _dashboardSubsectionSpacing = 12;
 const double _chartHeight = 300;
 const double _chartCardPadding = 12;
-const double _chartAxisNameSize = 18;
 const double _lineYAxisReservedSize = 30;
 const double _barYAxisReservedSize = 30;
 const double _chartXAxisReservedSize = 30;
 const double _chartAxisLabelSpace = 6;
 const double _chartXLabelTopPadding = 6;
+const double _fixedYAxisLabelWidth = 24;
+const double _fixedXAxisLabelTopSpacing = 6;
 const double _lineChartPixelsPerPoint = 56;
 const double _barChartPixelsPerPoint = 68;
 const double _pieSectionRadius = 70;
@@ -320,80 +321,138 @@ class DashboardView extends GetView<DashboardController> {
                     ? const Center(child: Text('Not enough data'))
                     : Padding(
                         padding: const EdgeInsets.all(_chartCardPadding),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: SizedBox(
-                            width: _chartWidth(
-                              pointCount: expenseBars.length,
-                              minWidth: viewportWidth,
-                              pixelsPerPoint: _barChartPixelsPerPoint,
-                            ),
-                            child: BarChart(
-                              BarChartData(
-                                minY: 0,
-                                maxY: _barMaxY(expenseBars),
-                                borderData: FlBorderData(show: false),
-                                gridData: const FlGridData(show: true),
-                                titlesData: FlTitlesData(
-                                  rightTitles: const AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: _fixedYAxisLabelWidth,
+                                    child: Center(
+                                      child: RotatedBox(
+                                        quarterTurns: 3,
+                                        child: Text(
+                                          'Expense',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.labelSmall,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  topTitles: const AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false),
-                                  ),
-                                  leftTitles: AxisTitles(
-                                    axisNameWidget: const Text('Expense'),
-                                    axisNameSize: _chartAxisNameSize,
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: _barYAxisReservedSize,
-                                      interval: _barInterval(expenseBars),
-                                      getTitlesWidget: (value, meta) =>
-                                          SideTitleWidget(
-                                            meta: meta,
-                                            space: _chartAxisLabelSpace,
-                                            child: Text(
-                                              value.toStringAsFixed(0),
-                                              style: Theme.of(
-                                                context,
-                                              ).textTheme.labelSmall,
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      reverse: true,
+                                      child: SizedBox(
+                                        width: _chartWidth(
+                                          pointCount: expenseBars.length,
+                                          minWidth: viewportWidth,
+                                          pixelsPerPoint:
+                                              _barChartPixelsPerPoint,
+                                        ),
+                                        child: BarChart(
+                                          BarChartData(
+                                            minY: 0,
+                                            maxY: _barMaxY(expenseBars),
+                                            borderData: FlBorderData(
+                                              show: false,
                                             ),
+                                            gridData: const FlGridData(
+                                              show: true,
+                                            ),
+                                            titlesData: FlTitlesData(
+                                              rightTitles: const AxisTitles(
+                                                sideTitles: SideTitles(
+                                                  showTitles: false,
+                                                ),
+                                              ),
+                                              topTitles: const AxisTitles(
+                                                sideTitles: SideTitles(
+                                                  showTitles: false,
+                                                ),
+                                              ),
+                                              leftTitles: AxisTitles(
+                                                sideTitles: SideTitles(
+                                                  showTitles: true,
+                                                  reservedSize:
+                                                      _barYAxisReservedSize,
+                                                  interval: _barInterval(
+                                                    expenseBars,
+                                                  ),
+                                                  getTitlesWidget:
+                                                      (value, meta) =>
+                                                          SideTitleWidget(
+                                                            meta: meta,
+                                                            space:
+                                                                _chartAxisLabelSpace,
+                                                            child: Text(
+                                                              value
+                                                                  .toStringAsFixed(
+                                                                    0,
+                                                                  ),
+                                                              style:
+                                                                  Theme.of(
+                                                                        context,
+                                                                      )
+                                                                      .textTheme
+                                                                      .labelSmall,
+                                                            ),
+                                                          ),
+                                                ),
+                                              ),
+                                              bottomTitles: AxisTitles(
+                                                sideTitles: SideTitles(
+                                                  showTitles: true,
+                                                  reservedSize:
+                                                      _chartXAxisReservedSize,
+                                                  getTitlesWidget:
+                                                      (value, meta) {
+                                                        final index = value
+                                                            .toInt();
+                                                        if (index < 0 ||
+                                                            index >=
+                                                                expenseMonths
+                                                                    .length) {
+                                                          return const SizedBox.shrink();
+                                                        }
+                                                        final label =
+                                                            DateFormat('MMM')
+                                                                .format(
+                                                                  expenseMonths[index],
+                                                                )
+                                                                .toUpperCase();
+                                                        return Padding(
+                                                          padding:
+                                                              const EdgeInsets.only(
+                                                                top: _chartXLabelTopPadding,
+                                                              ),
+                                                          child: Text(
+                                                            label,
+                                                            style: Theme.of(
+                                                              context,
+                                                            ).textTheme.labelSmall,
+                                                          ),
+                                                        );
+                                                      },
+                                                ),
+                                              ),
+                                            ),
+                                            barGroups: expenseBars,
                                           ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                  bottomTitles: AxisTitles(
-                                    axisNameWidget: const Text('Month'),
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize: _chartXAxisReservedSize,
-                                      getTitlesWidget: (value, meta) {
-                                        final index = value.toInt();
-                                        if (index < 0 ||
-                                            index >= expenseMonths.length) {
-                                          return const SizedBox.shrink();
-                                        }
-                                        final label = DateFormat('MMM')
-                                            .format(expenseMonths[index])
-                                            .toUpperCase();
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: _chartXLabelTopPadding,
-                                          ),
-                                          child: Text(
-                                            label,
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.labelSmall,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                barGroups: expenseBars,
+                                ],
                               ),
                             ),
-                          ),
+                            const SizedBox(height: _fixedXAxisLabelTopSpacing),
+                            Text(
+                              'Month',
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                          ],
                         ),
                       ),
               ),
@@ -722,89 +781,129 @@ class DashboardView extends GetView<DashboardController> {
                 ? const Center(child: Text('Not enough data'))
                 : Padding(
                     padding: const EdgeInsets.all(_chartCardPadding),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: _chartWidth(
-                          pointCount: spots.length,
-                          minWidth: minWidth,
-                          pixelsPerPoint: _lineChartPixelsPerPoint,
-                        ),
-                        child: LineChart(
-                          LineChartData(
-                            minX: 0,
-                            maxX: spots.length > 1
-                                ? (spots.length - 1).toDouble()
-                                : 1,
-                            minY: _lineMinY(spots),
-                            maxY: _lineMaxY(spots),
-                            borderData: FlBorderData(show: false),
-                            gridData: const FlGridData(show: true),
-                            titlesData: FlTitlesData(
-                              rightTitles: const AxisTitles(
-                                sideTitles: SideTitles(showTitles: false),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: _fixedYAxisLabelWidth,
+                                child: Center(
+                                  child: RotatedBox(
+                                    quarterTurns: 3,
+                                    child: Text(
+                                      yAxisTitle,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.labelSmall,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              topTitles: const AxisTitles(
-                                sideTitles: SideTitles(showTitles: false),
-                              ),
-                              leftTitles: AxisTitles(
-                                axisNameWidget: Text(yAxisTitle),
-                                axisNameSize: _chartAxisNameSize,
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: _lineYAxisReservedSize,
-                                  interval: _lineInterval(spots),
-                                  getTitlesWidget: (value, meta) =>
-                                      SideTitleWidget(
-                                        meta: meta,
-                                        space: _chartAxisLabelSpace,
-                                        child: Text(
-                                          value.toStringAsFixed(0),
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.labelSmall,
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  reverse: true,
+                                  child: SizedBox(
+                                    width: _chartWidth(
+                                      pointCount: spots.length,
+                                      minWidth: minWidth,
+                                      pixelsPerPoint: _lineChartPixelsPerPoint,
+                                    ),
+                                    child: LineChart(
+                                      LineChartData(
+                                        minX: 0,
+                                        maxX: spots.length > 1
+                                            ? (spots.length - 1).toDouble()
+                                            : 1,
+                                        minY: _lineMinY(spots),
+                                        maxY: _lineMaxY(spots),
+                                        borderData: FlBorderData(show: false),
+                                        gridData: const FlGridData(show: true),
+                                        titlesData: FlTitlesData(
+                                          rightTitles: const AxisTitles(
+                                            sideTitles: SideTitles(
+                                              showTitles: false,
+                                            ),
+                                          ),
+                                          topTitles: const AxisTitles(
+                                            sideTitles: SideTitles(
+                                              showTitles: false,
+                                            ),
+                                          ),
+                                          leftTitles: AxisTitles(
+                                            sideTitles: SideTitles(
+                                              showTitles: true,
+                                              reservedSize:
+                                                  _lineYAxisReservedSize,
+                                              interval: _lineInterval(spots),
+                                              getTitlesWidget: (value, meta) =>
+                                                  SideTitleWidget(
+                                                    meta: meta,
+                                                    space:
+                                                        _chartAxisLabelSpace,
+                                                    child: Text(
+                                                      value.toStringAsFixed(0),
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .labelSmall,
+                                                    ),
+                                                  ),
+                                            ),
+                                          ),
+                                          bottomTitles: AxisTitles(
+                                            sideTitles: SideTitles(
+                                              showTitles: true,
+                                              reservedSize:
+                                                  _chartXAxisReservedSize,
+                                              interval: 1,
+                                              getTitlesWidget: (value, meta) {
+                                                final label = _entryMonthLabel(
+                                                  value: value,
+                                                  entries: sourceEntries,
+                                                );
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        top:
+                                                            _chartXLabelTopPadding,
+                                                      ),
+                                                  child: Text(
+                                                    label,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .labelSmall,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
                                         ),
+                                        lineBarsData: [
+                                          LineChartBarData(
+                                            spots: spots,
+                                            isCurved: true,
+                                            dotData: const FlDotData(
+                                              show: false,
+                                            ),
+                                            barWidth: 3,
+                                            color: color,
+                                          ),
+                                        ],
                                       ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              bottomTitles: AxisTitles(
-                                axisNameWidget: const Text('Month'),
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: _chartXAxisReservedSize,
-                                  interval: 1,
-                                  getTitlesWidget: (value, meta) {
-                                    final label = _entryMonthLabel(
-                                      value: value,
-                                      entries: sourceEntries,
-                                    );
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: _chartXLabelTopPadding,
-                                      ),
-                                      child: Text(
-                                        label,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.labelSmall,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            lineBarsData: [
-                              LineChartBarData(
-                                spots: spots,
-                                isCurved: true,
-                                dotData: const FlDotData(show: false),
-                                barWidth: 3,
-                                color: color,
                               ),
                             ],
                           ),
                         ),
-                      ),
+                        const SizedBox(height: _fixedXAxisLabelTopSpacing),
+                        Text(
+                          'Month',
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                      ],
                     ),
                   ),
           ),
