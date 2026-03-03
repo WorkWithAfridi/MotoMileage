@@ -33,7 +33,7 @@ class FuelLogsView extends GetView<FuelController> {
       return ListView.separated(
         padding: const EdgeInsets.all(12),
         itemCount: entries.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 4),
+        separatorBuilder: (context, index) => const SizedBox(height: 4 ),
         itemBuilder: (context, index) {
           final entry = entries[index];
           return TweenAnimationBuilder<double>(

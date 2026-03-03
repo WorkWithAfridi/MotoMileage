@@ -13,4 +13,5 @@ Future<void> main() async {
 
   InitialBinding().dependencies();
   runApp(const MotoMileageApp());
+  
 }
