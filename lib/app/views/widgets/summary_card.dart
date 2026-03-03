@@ -20,7 +20,7 @@ class SummaryCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.35)),
+            // border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.35)),
             borderRadius: BorderRadius.circular(18),
           ),
           child: Padding(
