@@ -140,6 +140,9 @@ class AppTheme {
     required Color cardColor,
   }) {
     final isDark = brightness == Brightness.dark;
+    final scaffoldBg = isDark
+        ? colorScheme.surface
+        : colorScheme.surfaceContainerLowest;
     final base = ThemeData(
       useMaterial3: true,
       brightness: brightness,
@@ -148,9 +151,7 @@ class AppTheme {
     );
 
     return base.copyWith(
-      scaffoldBackgroundColor: isDark
-          ? colorScheme.surface
-          : colorScheme.surfaceContainerLowest,
+      scaffoldBackgroundColor: scaffoldBg,
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
@@ -169,9 +170,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: isDark
-              ? Brightness.light
-              : Brightness.dark,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
           statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
         ),
         foregroundColor: colorScheme.onSurface,
@@ -258,9 +257,9 @@ class AppTheme {
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: colorScheme.surfaceContainerLow,
+        backgroundColor: scaffoldBg,
         surfaceTintColor: Colors.transparent,
-        modalBackgroundColor: colorScheme.surfaceContainerLow,
+        modalBackgroundColor: scaffoldBg,
         showDragHandle: true,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
