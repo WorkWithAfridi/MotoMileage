@@ -56,7 +56,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
     final fuelController = Get.find<FuelController>();
 
     return Padding(
-      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 16),
+      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom),
       child: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -186,6 +186,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                 width: double.infinity,
                 child: OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
               ),
+              SizedBox(height: 16),
             ],
           ),
         ),
