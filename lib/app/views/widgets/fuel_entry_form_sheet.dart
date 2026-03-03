@@ -23,6 +23,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
   late final TextEditingController _costController;
   late final TextEditingController _stationController;
   late final TextEditingController _notesController;
+  final FocusNode _stationFocusNode = FocusNode();
   bool _showOptional = false;
   FuelType? _fuelType;
   DateTime _date = DateTime.now();
@@ -32,10 +33,18 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
   @override
   void initState() {
     super.initState();
-    _odometerController = TextEditingController(text: widget.entry?.odometer.toString() ?? '');
-    _quantityController = TextEditingController(text: widget.entry?.fuelQuantity.toString() ?? '');
-    _costController = TextEditingController(text: widget.entry?.totalCost.toString() ?? '');
-    _stationController = TextEditingController(text: widget.entry?.stationName ?? '');
+    _odometerController = TextEditingController(
+      text: widget.entry?.odometer.toString() ?? '',
+    );
+    _quantityController = TextEditingController(
+      text: widget.entry?.fuelQuantity.toString() ?? '',
+    );
+    _costController = TextEditingController(
+      text: widget.entry?.totalCost.toString() ?? '',
+    );
+    _stationController = TextEditingController(
+      text: widget.entry?.stationName ?? '',
+    );
     _notesController = TextEditingController(text: widget.entry?.notes ?? '');
 
     _fuelType = widget.entry?.fuelType;
@@ -49,6 +58,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
     _quantityController.dispose();
     _costController.dispose();
     _stationController.dispose();
+    _stationFocusNode.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -61,14 +71,21 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
     final activeBike = bikeController.activeBike;
     final distanceUnit = _distanceUnitLabel(activeBike?.distanceUnit);
     final fuelUnit = _fuelUnitLabel(activeBike?.fuelUnit);
-    final currency = settingsController.settings.value.currencySymbol.toUpperCase();
+    final currency = settingsController.settings.value.currencySymbol
+        .toUpperCase();
+    final stationHistory = _stationHistory(fuelController.entries);
 
     return GestureDetector(
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
       child: Padding(
-        padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -76,33 +93,59 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.entry == null ? 'Quick Add Fuel' : 'Edit Fuel Entry', style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  widget.entry == null ? 'Quick Add Fuel' : 'Edit Fuel Entry',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const SizedBox(height: 22),
                 TextFormField(
                   controller: _odometerController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(labelText: 'Odometer', suffixText: distanceUnit),
-                  validator: (value) => (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Odometer',
+                    suffixText: distanceUnit,
+                  ),
+                  validator: (value) =>
+                      (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
                 ),
                 const SizedBox(height: 18),
                 TextFormField(
                   controller: _quantityController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(labelText: 'Fuel Quantity', suffixText: fuelUnit),
-                  validator: (value) => (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Fuel Quantity',
+                    suffixText: fuelUnit,
+                  ),
+                  validator: (value) =>
+                      (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
                 ),
                 const SizedBox(height: 18),
                 TextFormField(
                   controller: _costController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(labelText: 'Total Cost', suffixText: currency),
-                  validator: (value) => (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Total Cost',
+                    suffixText: currency,
+                  ),
+                  validator: (value) =>
+                      (double.tryParse(value ?? '') == null) ? 'Invalid' : null,
                 ),
                 const SizedBox(height: 18),
                 OutlinedButton.icon(
-                  onPressed: () => setState(() => _showOptional = !_showOptional),
-                  icon: Icon(_showOptional ? Icons.expand_less : Icons.expand_more),
-                  label: Text(_showOptional ? 'Hide Optional' : 'Show Optional'),
+                  onPressed: () =>
+                      setState(() => _showOptional = !_showOptional),
+                  icon: Icon(
+                    _showOptional ? Icons.expand_less : Icons.expand_more,
+                  ),
+                  label: Text(
+                    _showOptional ? 'Hide Optional' : 'Show Optional',
+                  ),
                 ),
                 if (_showOptional) ...[
                   const SizedBox(height: 24),
@@ -110,15 +153,94 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                     initialValue: _fuelType,
                     decoration: const InputDecoration(labelText: 'Fuel Type'),
                     items: [
-                      const DropdownMenuItem<FuelType?>(value: null, child: Text('None')),
-                      ...FuelType.values.map((type) => DropdownMenuItem<FuelType?>(value: type, child: Text(type.name))),
+                      const DropdownMenuItem<FuelType?>(
+                        value: null,
+                        child: Text('None'),
+                      ),
+                      ...FuelType.values.map(
+                        (type) => DropdownMenuItem<FuelType?>(
+                          value: type,
+                          child: Text(type.name),
+                        ),
+                      ),
                     ],
                     onChanged: (value) => setState(() => _fuelType = value),
                   ),
                   const SizedBox(height: 18),
-                  TextFormField(
-                    controller: _stationController,
-                    decoration: const InputDecoration(labelText: 'Station Name'),
+                  RawAutocomplete<String>(
+                    textEditingController: _stationController,
+                    focusNode: _stationFocusNode,
+                    optionsBuilder: (textEditingValue) {
+                      final query = textEditingValue.text.trim().toLowerCase();
+                      if (query.isEmpty) {
+                        return stationHistory.take(6);
+                      }
+
+                      final startsWith = stationHistory.where(
+                        (item) => item.toLowerCase().startsWith(query),
+                      );
+                      final contains = stationHistory.where(
+                        (item) =>
+                            !item.toLowerCase().startsWith(query) &&
+                            item.toLowerCase().contains(query),
+                      );
+                      return [...startsWith, ...contains].take(6);
+                    },
+                    onSelected: (selection) =>
+                        _stationController.text = selection,
+                    fieldViewBuilder:
+                        (
+                          context,
+                          textEditingController,
+                          focusNode,
+                          onFieldSubmitted,
+                        ) {
+                          return TextFormField(
+                            controller: textEditingController,
+                            focusNode: focusNode,
+                            decoration: InputDecoration(
+                              labelText: 'Station Name',
+                              prefixIcon: const Icon(Icons.search),
+                              helperText: stationHistory.isEmpty
+                                  ? null
+                                  : 'Suggestions from past entries',
+                            ),
+                          );
+                        },
+                    optionsViewBuilder: (context, onSelected, options) {
+                      if (options.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      return Align(
+                        alignment: Alignment.topLeft,
+                        child: Material(
+                          elevation: 8,
+                          borderRadius: BorderRadius.circular(12),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxHeight: 220,
+                              minWidth: 240,
+                            ),
+                            child: ListView.builder(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              itemCount: options.length,
+                              itemBuilder: (context, index) {
+                                final option = options.elementAt(index);
+                                return ListTile(
+                                  dense: true,
+                                  leading: const Icon(
+                                    Icons.local_gas_station_outlined,
+                                    size: 18,
+                                  ),
+                                  title: Text(option),
+                                  onTap: () => onSelected(option),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 18),
                   TextFormField(
@@ -132,7 +254,11 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                     children: [
                       const Text('Date:'),
                       const SizedBox(width: 8),
-                      Text(MaterialLocalizations.of(context).formatMediumDate(_date)),
+                      Text(
+                        MaterialLocalizations.of(
+                          context,
+                        ).formatMediumDate(_date),
+                      ),
                       const Spacer(),
                       TextButton(
                         onPressed: () async {
@@ -140,7 +266,9 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                             context: context,
                             initialDate: _date,
                             firstDate: DateTime(2000),
-                            lastDate: DateTime.now().add(const Duration(days: 1)),
+                            lastDate: DateTime.now().add(
+                              const Duration(days: 1),
+                            ),
                           );
                           if (picked != null) {
                             setState(() => _date = picked);
@@ -160,8 +288,12 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                         return;
                       }
 
-                      final odometer = double.parse(_odometerController.text.trim());
-                      final quantity = double.parse(_quantityController.text.trim());
+                      final odometer = double.parse(
+                        _odometerController.text.trim(),
+                      );
+                      final quantity = double.parse(
+                        _quantityController.text.trim(),
+                      );
                       final cost = double.parse(_costController.text.trim());
 
                       if (widget.entry == null) {
@@ -190,13 +322,18 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                       if (!context.mounted) return;
                       Navigator.of(context).pop();
                     },
-                    child: Text(widget.entry == null ? 'Save Entry' : 'Update Entry'),
+                    child: Text(
+                      widget.entry == null ? 'Save Entry' : 'Update Entry',
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
-                  child: OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Close'),
+                  ),
                 ),
                 SizedBox(height: 16),
               ],
@@ -213,5 +350,26 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
 
   String _fuelUnitLabel(FuelUnit? unit) {
     return unit == FuelUnit.gallons ? 'GALLONS' : 'LITERS';
+  }
+
+  List<String> _stationHistory(List<FuelLogEntry> entries) {
+    final frequency = <String, int>{};
+    for (final entry in entries) {
+      final station = entry.stationName?.trim() ?? '';
+      if (station.isEmpty) {
+        continue;
+      }
+      frequency[station] = (frequency[station] ?? 0) + 1;
+    }
+
+    final names = frequency.keys.toList();
+    names.sort((a, b) {
+      final byFrequency = (frequency[b] ?? 0).compareTo(frequency[a] ?? 0);
+      if (byFrequency != 0) {
+        return byFrequency;
+      }
+      return a.toLowerCase().compareTo(b.toLowerCase());
+    });
+    return names;
   }
 }
