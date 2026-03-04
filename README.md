@@ -1,172 +1,242 @@
-# Moto Mileage
+# Moto Mileage - Motorcycle Fuel Tracker & Maintenance Log (Flutter)
 
-Moto Mileage is an offline-first bike fuel and maintenance tracker built with Flutter.
-It is designed for fast daily logging, meaningful insights, and zero cloud dependency.
+Moto Mileage is an offline-first bike companion app that helps riders log fuel refills, track mileage and fuel costs, and manage maintenance schedules from one place.
 
-## Highlights
+The app is built with Flutter and stores everything locally using SQLite, so it works without internet, account setup, or cloud sync.
 
-- Fully offline app (no API, no auth, no cloud sync)
-- Local persistence with SQLite (`sqflite`)
-- GetX for state management, dependency injection, and navigation flow
-- Multi-bike support with per-bike fuel and maintenance history
-- Smart fuel calculations (trip, mileage, cost-per-unit, cost-per-distance)
-- Segmented analytics dashboard with cards + charts
-- Local CSV export and full JSON backup/restore
-- Startup flow with splash + onboarding walkthrough
-- 12 selectable color theme presets (default: dark `Midnight Teal`)
+Keywords: bike fuel tracker, motorcycle mileage tracker, bike maintenance app, fuel log app, mileage calculator, offline fuel expense tracker, Flutter motorcycle app.
 
-## Architecture
+## Table of Contents
 
-### Offline-only
+- [Project Overview](#project-overview)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Architecture & Data Flow](#architecture--data-flow)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Development Workflow](#development-workflow)
+- [Contributing](#contributing)
+- [Testing & Quality](#testing--quality)
+- [Planned Improvements](#planned-improvements)
 
-- No backend communication
-- No internet required
-- All app behavior runs locally
+## Project Overview
 
-### Storage model (SQLite)
+Moto Mileage focuses on practical day-to-day riding needs:
 
-Data is stored locally in SQLite via `sqflite`:
+- Track every fuel refill with useful metadata
+- Calculate real-world mileage and cost trends automatically
+- Record service/maintenance activities and due targets
+- View dashboard analytics per bike
+- Export and back up data locally
 
-- `kv_store` table for app-level key-value state:
+The core product goal is reliability and privacy for riders who prefer an offline, no-cloud workflow.
+
+## Key Features
+
+### 1. Multi-Bike Management
+
+- Create, edit, and delete bikes
+- Switch active bike quickly from the app bar
+- Keep fuel and maintenance history isolated per bike
+- Configure measurement units for each bike
+
+### 2. Fuel Logging & Smart Calculations
+
+- Add, edit, and delete fuel entries
+- Optional fields: fuel type, station, notes, date
+- Auto-computed metrics:
+  - Trip distance
+  - Fuel efficiency (mileage)
+  - Cost per unit
+  - Cost per distance
+- Recalculation chain keeps subsequent entries consistent after edits/deletes
+
+### 3. Maintenance Tracking
+
+- Log maintenance records (oil, chain lube, custom)
+- Add next-due odometer values
+- See due/overdue visual status directly in cards
+
+### 4. Dashboard & Analytics
+
+Segmented dashboard with cards and charts:
+
+- `Performance`: average/latest/best/worst mileage + trend
+- `Cost & Spending`: monthly expense, recent cost behavior, cost-per-distance
+- `Fuel Profile`: refill patterns, fuel usage, fuel type distribution
+
+### 5. Reminders
+
+- Refill reminder based on configured interval
+- Maintenance due reminder from odometer progression
+
+### 6. Export, Backup, and Restore
+
+- CSV export for bike fuel logs
+- JSON backup of full app state
+- JSON restore from payload
+- Demo dataset loader for local testing and showcase
+
+### 7. Onboarding & Themes
+
+- First-launch onboarding flow (shown once)
+- 12 built-in theme presets (light and dark)
+
+## Tech Stack
+
+### Framework & Language
+
+- Flutter (Material 3)
+- Dart SDK `^3.10.7`
+
+### State, Routing, and DI
+
+- `get` (GetX) for state management, navigation, dependency injection
+
+### Local Storage & Data
+
+- `sqflite` for SQLite persistence
+- `path` for file/path helpers
+- `uuid` for unique IDs
+
+### Data Export & Sharing
+
+- `path_provider` for local file access
+- `share_plus` for share/export flows
+
+### UI & Visualization
+
+- `fl_chart` for analytics charts
+- `flutter_staggered_grid_view` for dashboard layouts
+- `intl` for formatting
+
+## Architecture & Data Flow
+
+### Offline-First Design
+
+- No backend/API integration
+- No authentication dependency
+- All data and logic run locally on-device
+
+### Storage
+
+- App data persisted in SQLite
+- Key app preferences stored in `kv_store`, including:
   - `active_bike_id`
   - `settings`
   - `onboarding_seen`
-- bike/fuel/maintenance payloads are persisted through repositories on top of SQLite storage
 
-### Tech stack
+### Layering
 
-- Flutter (Material 3)
-- GetX (`get`)
-- SQLite (`sqflite`)
-- Path utilities (`path`)
-- Charts (`fl_chart`)
-- Staggered cards (`flutter_staggered_grid_view`)
-- Export/share (`path_provider`, `share_plus`)
-- Formatting (`intl`)
-
-## Features
-
-### 1. Startup & Onboarding
-
-- Splash screen
-- First-launch onboarding with feature explanation pages
-- Skip / Next / Get Started flow
-- Onboarding shown once (`onboarding_seen`)
-
-### 2. Bike Management
-
-- Add, edit, delete bikes
-- Configurable units per bike (distance + fuel)
-- Active bike switcher in app bar
-- Deleting bike removes bike-scoped fuel/maintenance data
-
-### 3. Fuel Logging
-
-- Quick add fuel entry
-- Edit and delete entries
-- Optional fields: fuel type, station, notes, date
-- Automatic calculations on save/re-save:
-  - Trip distance
-  - Mileage
-  - Price per unit
-  - Cost per distance
-- Recalculation propagation for subsequent entries after edit/delete
-- Newest entries shown first in list
-
-### 4. Maintenance Logging
-
-- Add and delete maintenance records
-- Maintenance types (oil, chain lube, custom)
-- Next due odometer support
-- Due status shown in list cards
-- Newest entries shown first in list
-
-### 5. Dashboard (Segmented)
-
-Dashboard is grouped into sections with mixed cards and charts:
-
-- `Performance`
-  - Mileage cards and mileage trend chart
-- `Cost & Spending`
-  - Cost cards, monthly expense chart, cost/distance trend
-- `Fuel Profile`
-  - Fuel cards, fuel quantity trend, fuel type split pie
-
-Includes metrics such as:
-
-- Average/latest mileage
-- Best/worst mileage
-- Total distance/fuel/refills
-- Avg refill cost
-- Avg trip distance
-- Avg cost per distance
-- This month expense
-- Last 30 days expense
-- 30-day change vs previous period
-
-Info bottom sheets (`i` icon) are available on selected cards to explain metric formulas.
-
-### 6. Reminders
-
-- Refill reminder based on configured interval
-- Maintenance due reminder based on latest odometer vs next due
-- Reminder cards are theme-aware
-
-### 7. Export, Backup, Restore
-
-- CSV export of current bike fuel logs
-- JSON backup of full app state
-- JSON restore from pasted payload
-- Debug action to load rich demo dataset
-
-### 8. Theme System
-
-Theme selection is in Settings (`Theme` section), with 12 presets:
-
-1. Midnight Teal (Dark) [default]
-2. Ocean Light
-3. Forest Mist
-4. Sunset Sand
-5. Royal Indigo (Dark)
-6. Rose Blush
-7. Volcanic Ash (Dark)
-8. Arctic Blue
-9. Emerald Night (Dark)
-10. Citrus Pop
-11. Lavender Haze
-12. Graphite Mono (Dark)
-
-## UX Notes
-
-- Bottom sheets use drag handle + explicit `Close` button
-- Form sheets are keyboard-safe and scrollable
-- Fuel/Maintenance cards show additional optional details when available
+- `views` handle UI rendering and interactions
+- `controllers` coordinate business logic and derived metrics
+- `repositories` provide persistence abstraction
+- `services` handle backup/export/storage utilities
+- `models` represent serializable domain objects
 
 ## Project Structure
 
-- `lib/main.dart` -> app bootstrap + storage init
-- `lib/app/app.dart` -> root app + theme binding
-- `lib/app/constants.dart` -> enums and storage keys
-- `lib/app/models` -> serializable domain models
-- `lib/app/repositories` -> storage repositories
-- `lib/app/services` -> storage, backup, csv, demo data services
-- `lib/app/controllers` -> business logic and computed metrics
-- `lib/app/views` -> UI screens and bottom sheets
-- `lib/app/theme` -> theme preset system
-- `lib/app/bindings` -> dependency graph
+- `lib/main.dart` - app entrypoint and startup initialization
+- `lib/app/app.dart` - root app widget and global bindings
+- `lib/app/bindings` - dependency graph setup
+- `lib/app/constants.dart` - app enums, constants, storage keys
+- `lib/app/models` - bike, fuel, maintenance, and settings models
+- `lib/app/repositories` - SQLite-backed repositories
+- `lib/app/services` - storage, export, backup, demo data services
+- `lib/app/controllers` - state and analytics logic
+- `lib/app/views` - screens, sheets, and reusable presentation widgets
+- `lib/app/theme` - theme presets and theme config
+- `lib/app/utils` - utility helpers
 
 ## Getting Started
 
+### Prerequisites
+
+- Flutter SDK (stable channel)
+- Android Studio or VS Code with Flutter/Dart plugins
+- A connected device or emulator
+
+### Install Dependencies
+
 ```bash
 flutter pub get
+```
+
+### Run the App
+
+```bash
 flutter run
 ```
 
-## Quality Checks
+### Build Release Artifacts
 
 ```bash
+flutter build apk
+flutter build appbundle
+flutter build ios
+```
+
+## Development Workflow
+
+1. Create a feature/fix branch from your main development branch.
+2. Implement focused changes with readable commits.
+3. Run formatting and checks locally.
+4. Verify behavior manually (fuel flow, maintenance flow, dashboard impact).
+5. Open a pull request with clear scope and screenshots for UI changes.
+
+## Contributing
+
+Contributions are welcome for feature improvements, bug fixes, and documentation.
+
+### Contribution Guidelines
+
+1. Fork the repository and create a new branch.
+2. Keep each PR scoped to one logical change.
+3. Follow existing architecture patterns (`controllers` + `repositories` + `services`).
+4. Use clear naming and avoid unrelated refactors in the same PR.
+5. Add/update tests when business logic changes.
+6. Update README/docs when behavior or setup changes.
+
+### Commit Style (Recommended)
+
+Use concise commit messages such as:
+
+- `feat: add fuel entry validation for negative values`
+- `fix: recalculate mileage chain after fuel delete`
+- `docs: update setup and contribution guide`
+
+### Pull Request Checklist
+
+- [ ] App runs locally without regressions
+- [ ] `flutter analyze` passes
+- [ ] `flutter test` passes
+- [ ] UI changes validated on at least one real/simulated device
+- [ ] Docs updated if needed
+
+## Testing & Quality
+
+Run before opening a PR:
+
+```bash
+dart format .
 flutter analyze
 flutter test
 ```
 
-Current status: both commands pass.
+Also test key journeys manually:
+
+- Add/edit/delete bike
+- Add/edit/delete fuel entries and metric recalculation
+- Add/delete maintenance records and due status updates
+- Backup/export and restore behavior
+
+## Planned Improvements
+
+- More granular reminder configurations
+- Enhanced trend filters (time range presets)
+- Better import/export UX for larger datasets
+- Additional widget-level test coverage
+
+---
+
+If you are publishing this repository publicly, keep the project title, description, and tags aligned with bike fuel tracking and motorcycle maintenance search terms for stronger discoverability.
