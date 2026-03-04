@@ -36,21 +36,18 @@ The core product goal is reliability and privacy for riders who prefer an offlin
 
 Promotional screenshots from the latest app build:
 
-| Screenshot 1 | Screenshot 2 |
-| --- | --- |
-| ![Moto Mileage screenshot 1](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.14.png) | ![Moto Mileage screenshot 2](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.33.png) |
-
-| Screenshot 3 | Screenshot 4 |
-| --- | --- |
-| ![Moto Mileage screenshot 3](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.40.png) | ![Moto Mileage screenshot 4](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.45.png) |
-
-| Screenshot 5 | Screenshot 6 |
-| --- | --- |
-| ![Moto Mileage screenshot 5](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.51.png) | ![Moto Mileage screenshot 6](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.57.png) |
-
-| Screenshot 7 | Screenshot 8 |
-| --- | --- |
-| ![Moto Mileage screenshot 7](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.41.07.png) | ![Moto Mileage screenshot 8](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.41.20.png) |
+<p align="center">
+  <img src="assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.14.png" alt="Moto Mileage screenshot 1" width="220" />
+  <img src="assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.33.png" alt="Moto Mileage screenshot 2" width="220" />
+  <img src="assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.40.png" alt="Moto Mileage screenshot 3" width="220" />
+  <img src="assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.45.png" alt="Moto Mileage screenshot 4" width="220" />
+</p>
+<p align="center">
+  <img src="assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.51.png" alt="Moto Mileage screenshot 5" width="220" />
+  <img src="assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.57.png" alt="Moto Mileage screenshot 6" width="220" />
+  <img src="assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.41.07.png" alt="Moto Mileage screenshot 7" width="220" />
+  <img src="assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.41.20.png" alt="Moto Mileage screenshot 8" width="220" />
+</p>
 
 ## Key Features
 
