@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../constants.dart';
@@ -30,9 +32,13 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.bike?.name ?? '');
-    _manufacturerController = TextEditingController(text: widget.bike?.manufacturer ?? '');
+    _manufacturerController = TextEditingController(
+      text: widget.bike?.manufacturer ?? '',
+    );
     _modelController = TextEditingController(text: widget.bike?.model ?? '');
-    _yearController = TextEditingController(text: widget.bike?.year?.toString() ?? '');
+    _yearController = TextEditingController(
+      text: widget.bike?.year?.toString() ?? '',
+    );
 
     _distanceUnit = widget.bike?.distanceUnit ?? DistanceUnit.km;
     _fuelUnit = widget.bike?.fuelUnit ?? FuelUnit.liters;
@@ -69,7 +75,7 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                TrText(
                   widget.bike == null ? 'Add Bike' : 'Edit Bike',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
@@ -80,47 +86,47 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        TrText(
                           'Bike Details',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: _nameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Bike Name',
+                          decoration: InputDecoration(
+                            labelText: 'Bike Name'.tx,
                           ),
                           validator: (value) =>
                               (value == null || value.trim().isEmpty)
-                              ? 'Required'
+                              ? 'Required'.tx
                               : null,
                         ),
                         const SizedBox(height: 18),
                         TextFormField(
                           controller: _manufacturerController,
-                          decoration: const InputDecoration(
-                            labelText: 'Manufacturer',
+                          decoration: InputDecoration(
+                            labelText: 'Manufacturer'.tx,
                           ),
                           validator: (value) =>
                               (value == null || value.trim().isEmpty)
-                              ? 'Required'
+                              ? 'Required'.tx
                               : null,
                         ),
                         const SizedBox(height: 18),
                         TextFormField(
                           controller: _modelController,
-                          decoration: const InputDecoration(labelText: 'Model'),
+                          decoration: InputDecoration(labelText: 'Model'.tx),
                           validator: (value) =>
                               (value == null || value.trim().isEmpty)
-                              ? 'Required'
+                              ? 'Required'.tx
                               : null,
                         ),
                         const SizedBox(height: 18),
                         TextFormField(
                           controller: _yearController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'Year (optional)',
+                          decoration: InputDecoration(
+                            labelText: 'Year (optional)'.tx,
                           ),
                         ),
                       ],
@@ -134,7 +140,7 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        TrText(
                           'Unit Preferences',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
@@ -144,14 +150,14 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                             Expanded(
                               child: AppDropdownFormField<DistanceUnit>(
                                 initialValue: _distanceUnit,
-                                decoration: const InputDecoration(
-                                  labelText: 'Distance',
+                                decoration: InputDecoration(
+                                  labelText: 'Distance'.tx,
                                 ),
                                 items: DistanceUnit.values
                                     .map(
                                       (unit) => DropdownMenuItem(
                                         value: unit,
-                                        child: Text(unit.name.toUpperCase()),
+                                        child: TrText(unit.name.toUpperCase()),
                                       ),
                                     )
                                     .toList(),
@@ -165,14 +171,14 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                             Expanded(
                               child: AppDropdownFormField<FuelUnit>(
                                 initialValue: _fuelUnit,
-                                decoration: const InputDecoration(
-                                  labelText: 'Fuel',
+                                decoration: InputDecoration(
+                                  labelText: 'Fuel'.tx,
                                 ),
                                 items: FuelUnit.values
                                     .map(
                                       (unit) => DropdownMenuItem(
                                         value: unit,
-                                        child: Text(unit.name.toUpperCase()),
+                                        child: TrText(unit.name.toUpperCase()),
                                       ),
                                     )
                                     .toList(),
@@ -195,7 +201,7 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        TrText(
                           'Actions',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
@@ -240,10 +246,8 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                               if (!context.mounted) return;
                               Navigator.of(context).pop();
                             },
-                            child: Text(
-                              widget.bike == null
-                                  ? 'Save Bike'
-                                  : 'Update Bike',
+                            child: TrText(
+                              widget.bike == null ? 'Save Bike' : 'Update Bike',
                             ),
                           ),
                         ),
@@ -252,7 +256,7 @@ class _BikeFormSheetState extends State<BikeFormSheet> {
                           width: double.infinity,
                           child: OutlinedButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('Close'),
+                            child: const TrText('Close'),
                           ),
                         ),
                       ],

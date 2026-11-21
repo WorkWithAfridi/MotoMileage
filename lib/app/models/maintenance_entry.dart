@@ -21,6 +21,33 @@ class MaintenanceEntry {
   final String? notes;
   final double? nextDueOdometer;
 
+  MaintenanceEntry copyWith({
+    String? id,
+    String? bikeId,
+    MaintenanceType? type,
+    String? customType,
+    bool clearCustomType = false,
+    double? odometer,
+    DateTime? date,
+    String? notes,
+    bool clearNotes = false,
+    double? nextDueOdometer,
+    bool clearNextDueOdometer = false,
+  }) {
+    return MaintenanceEntry(
+      id: id ?? this.id,
+      bikeId: bikeId ?? this.bikeId,
+      type: type ?? this.type,
+      customType: clearCustomType ? null : customType ?? this.customType,
+      odometer: odometer ?? this.odometer,
+      date: date ?? this.date,
+      notes: clearNotes ? null : notes ?? this.notes,
+      nextDueOdometer: clearNextDueOdometer
+          ? null
+          : nextDueOdometer ?? this.nextDueOdometer,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

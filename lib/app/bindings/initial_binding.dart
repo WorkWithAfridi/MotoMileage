@@ -17,8 +17,14 @@ import '../services/local_storage_service.dart';
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => BikeRepository(Get.find<LocalStorageService>()), fenix: true);
-    Get.lazyPut(() => FuelRepository(Get.find<LocalStorageService>()), fenix: true);
+    Get.lazyPut(
+      () => BikeRepository(Get.find<LocalStorageService>()),
+      fenix: true,
+    );
+    Get.lazyPut(
+      () => FuelRepository(Get.find<LocalStorageService>()),
+      fenix: true,
+    );
     Get.lazyPut(
       () => MaintenanceRepository(Get.find<LocalStorageService>()),
       fenix: true,
@@ -38,9 +44,15 @@ class InitialBinding extends Bindings {
       fenix: true,
     );
 
-    Get.put(SettingsController(Get.find<SettingsRepository>()), permanent: true);
     Get.put(
-      BikeController(Get.find<BikeRepository>(), Get.find<SettingsController>()),
+      SettingsController(Get.find<SettingsRepository>()),
+      permanent: true,
+    );
+    Get.put(
+      BikeController(
+        Get.find<BikeRepository>(),
+        Get.find<SettingsController>(),
+      ),
       permanent: true,
     );
     Get.put(

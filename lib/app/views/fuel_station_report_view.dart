@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../constants.dart';
@@ -18,10 +20,10 @@ class FuelStationReportView extends GetView<FuelController> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fuel Station Report'),
+        title: const TrText('Fuel Station Report'),
         actions: [
           IconButton(
-            tooltip: 'How this report works',
+            tooltip: 'How this report works'.tx,
             icon: const Icon(Icons.info_outline),
             onPressed: () => _showReportInfo(context),
           ),
@@ -38,20 +40,20 @@ class FuelStationReportView extends GetView<FuelController> {
 
         if (bike == null) {
           return const Center(
-            child: Text('Select a bike to view station report.'),
+            child: TrText('Select a bike to view station report.'),
           );
         }
 
         if (entries.isEmpty) {
           return const Center(
-            child: Text('No fuel logs available for station report.'),
+            child: TrText('No fuel logs available for station report.'),
           );
         }
 
         final reportRows = _buildReportRows(entries);
         if (reportRows.isEmpty) {
           return const Center(
-            child: Text('No station names found in fuel entries.'),
+            child: TrText('No station names found in fuel entries.'),
           );
         }
 
@@ -113,12 +115,12 @@ class FuelStationReportView extends GetView<FuelController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      TrText(
                         row.station,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 2),
-                      Text(
+                      TrText(
                         'Last refill: ${AppFormatters.date(row.lastRefill)}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
@@ -232,13 +234,13 @@ class FuelStationReportView extends GetView<FuelController> {
           style: Theme.of(context).textTheme.bodySmall,
           children: [
             TextSpan(
-              text: '$label: ',
+              text: '${label.tx}: ',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             TextSpan(
-              text: value,
+              text: value.tx,
               style: TextStyle(
                 fontWeight: FontWeight.w700,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -262,13 +264,13 @@ class FuelStationReportView extends GetView<FuelController> {
           style: Theme.of(context).textTheme.bodySmall,
           children: [
             TextSpan(
-              text: '$label: ',
+              text: '${label.tx}: ',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             TextSpan(
-              text: value,
+              text: value.tx,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -300,48 +302,48 @@ class FuelStationReportView extends GetView<FuelController> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              TrText(
                 'How Station Report Is Calculated',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 10),
-              Text(
+              TrText(
                 'Each station groups entries by Station Name from fuel logs of the active bike only.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 12),
-              Text('Metrics', style: Theme.of(context).textTheme.titleSmall),
+              TrText('Metrics', style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 6),
-              Text(
+              TrText(
                 'Refills: Number of entries for that station.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              Text(
+              TrText(
                 'Fuel: Sum of Fuel Quantity across that station.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              Text(
+              TrText(
                 'Cost: Sum of Total Cost across that station.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              Text(
+              TrText(
                 'Avg Price/Unit: Total Cost / Total Fuel.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              Text(
+              TrText(
                 'Distance: Sum of Trip Distance where available.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              Text(
+              TrText(
                 'Avg Mileage: Average of valid mileage values for that station.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              Text(
+              TrText(
                 'Last Refill: Latest date among entries for that station.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 10),
-              Text(
+              TrText(
                 'Stations are sorted by total spend (highest first).',
                 style: Theme.of(context).textTheme.bodySmall,
               ),

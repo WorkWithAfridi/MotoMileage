@@ -8,7 +8,11 @@ import 'bike_controller.dart';
 import 'settings_controller.dart';
 
 class FuelController extends GetxController {
-  FuelController(this._repository, this._bikeController, this._settingsController);
+  FuelController(
+    this._repository,
+    this._bikeController,
+    this._settingsController,
+  );
 
   final FuelRepository _repository;
   final BikeController _bikeController;
@@ -124,8 +128,10 @@ class FuelController extends GetxController {
   double get thisMonthExpense {
     final now = DateTime.now();
     return entries
-        .where((entry) =>
-            entry.date.year == now.year && entry.date.month == now.month)
+        .where(
+          (entry) =>
+              entry.date.year == now.year && entry.date.month == now.month,
+        )
         .fold(0, (sum, entry) => sum + entry.totalCost);
   }
 
@@ -189,7 +195,9 @@ class FuelController extends GetxController {
           ? tripDistance / current.fuelQuantity
           : null;
 
-      final costPerDistance = validTrip ? current.totalCost / tripDistance : null;
+      final costPerDistance = validTrip
+          ? current.totalCost / tripDistance
+          : null;
 
       recalculated.add(
         current.copyWith(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../constants.dart';
@@ -27,13 +29,13 @@ class FuelLogsView extends GetView<FuelController> {
       final costPerDistanceUnit = '$currency/$distanceUnit';
 
       if (entries.isEmpty) {
-        return const Center(child: Text('No fuel entries yet.'));
+        return const Center(child: TrText('No fuel entries yet.'));
       }
 
       return ListView.separated(
         padding: const EdgeInsets.all(12),
         itemCount: entries.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 4 ),
+        separatorBuilder: (context, index) => const SizedBox(height: 4),
         itemBuilder: (context, index) {
           final entry = entries[index];
           return TweenAnimationBuilder<double>(
@@ -42,7 +44,10 @@ class FuelLogsView extends GetView<FuelController> {
             curve: Curves.easeOutCubic,
             builder: (context, value, child) => Opacity(
               opacity: value,
-              child: Transform.translate(offset: Offset(0, 12 * (1 - value)), child: child),
+              child: Transform.translate(
+                offset: Offset(0, 12 * (1 - value)),
+                child: child,
+              ),
             ),
             child: Card(
               child: Padding(
@@ -52,7 +57,12 @@ class FuelLogsView extends GetView<FuelController> {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: Text(AppFormatters.date(entry.date), style: Theme.of(context).textTheme.titleMedium)),
+                        Expanded(
+                          child: TrText(
+                            AppFormatters.date(entry.date),
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
                         PopupMenuButton<String>(
                           position: PopupMenuPosition.under,
                           offset: const Offset(0, 4),
@@ -62,18 +72,25 @@ class FuelLogsView extends GetView<FuelController> {
                                 context: context,
                                 showDragHandle: true,
                                 isScrollControlled: true,
-                                builder: (_) => FuelEntryFormSheet(entry: entry),
+                                builder: (_) =>
+                                    FuelEntryFormSheet(entry: entry),
                               );
                             } else if (value == 'delete') {
                               await controller.deleteEntry(entry.id);
                             }
                           },
-                          itemBuilder: (_) => const [PopupMenuItem(value: 'edit', child: Text('Edit')), PopupMenuItem(value: 'delete', child: Text('Delete'))],
+                          itemBuilder: (_) => const [
+                            PopupMenuItem(value: 'edit', child: TrText('Edit')),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: TrText('Delete'),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text(
+                    TrText(
                       'Odometer: ${AppFormatters.number(entry.odometer, precision: precision)} $distanceUnit',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
@@ -82,20 +99,36 @@ class FuelLogsView extends GetView<FuelController> {
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        _metricChip(context, 'Fuel', '${AppFormatters.number(entry.fuelQuantity, precision: precision)} $fuelUnit'),
-                        _metricChip(context, 'Cost', '$currency ${AppFormatters.number(entry.totalCost, precision: precision)}'),
+                        _metricChip(
+                          context,
+                          'Fuel',
+                          '${AppFormatters.number(entry.fuelQuantity, precision: precision)} $fuelUnit',
+                        ),
+                        _metricChip(
+                          context,
+                          'Cost',
+                          '$currency ${AppFormatters.number(entry.totalCost, precision: precision)}',
+                        ),
                         _metricChip(
                           context,
                           'Mileage',
-                          entry.mileage == null ? 'N/A' : '${AppFormatters.number(entry.mileage!, precision: precision)} $mileageUnit',
+                          entry.mileage == null
+                              ? 'N/A'
+                              : '${AppFormatters.number(entry.mileage!, precision: precision)} $mileageUnit',
                         ),
                         _metricChip(
                           context,
                           'Trip',
-                          entry.tripDistance == null ? 'N/A' : '${AppFormatters.number(entry.tripDistance!, precision: precision)} $distanceUnit',
+                          entry.tripDistance == null
+                              ? 'N/A'
+                              : '${AppFormatters.number(entry.tripDistance!, precision: precision)} $distanceUnit',
                         ),
                         if (entry.pricePerUnit != null)
-                          _metricChip(context, 'Price/$fuelUnit', '$currency ${AppFormatters.number(entry.pricePerUnit!, precision: precision)}'),
+                          _metricChip(
+                            context,
+                            'Price/$fuelUnit',
+                            '$currency ${AppFormatters.number(entry.pricePerUnit!, precision: precision)}',
+                          ),
                         if (entry.costPerDistance != null)
                           _metricChip(
                             context,
@@ -104,19 +137,27 @@ class FuelLogsView extends GetView<FuelController> {
                           ),
                       ],
                     ),
-                    if (entry.fuelType != null || (entry.stationName?.isNotEmpty ?? false)) ...[
+                    if (entry.fuelType != null ||
+                        (entry.stationName?.isNotEmpty ?? false)) ...[
                       const SizedBox(height: 10),
-                      Text(
+                      TrText(
                         [
-                          if (entry.fuelType != null) 'Type: ${entry.fuelType!.name.toUpperCase()}',
-                          if (entry.stationName?.isNotEmpty ?? false) 'Station: ${entry.stationName}',
+                          if (entry.fuelType != null)
+                            'Type: ${entry.fuelType!.name.toUpperCase()}',
+                          if (entry.stationName?.isNotEmpty ?? false)
+                            'Station: ${entry.stationName}',
                         ].join('  |  '),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                     if (entry.notes?.isNotEmpty ?? false) ...[
                       const SizedBox(height: 6),
-                      Text('Note: ${entry.notes}', maxLines: 3, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall),
+                      TrText(
+                        'Note: ${entry.notes}',
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ],
                   ],
                 ),
@@ -131,18 +172,26 @@ class FuelLogsView extends GetView<FuelController> {
   Widget _metricChip(BuildContext context, String label, String value) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: RichText(
         text: TextSpan(
           style: Theme.of(context).textTheme.bodySmall,
           children: [
             TextSpan(
-              text: '$label: ',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              text: '${label.tx}: ',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             TextSpan(
-              text: value,
-              style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+              text: value.tx,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ],
         ),

@@ -8,6 +8,7 @@ class AppSettings {
     required this.defaultFuelUnit,
     required this.refillReminderInterval,
     required this.themePreset,
+    this.languageCode,
   });
 
   final String currencySymbol;
@@ -16,6 +17,7 @@ class AppSettings {
   final FuelUnit defaultFuelUnit;
   final double refillReminderInterval;
   final AppThemePreset themePreset;
+  final String? languageCode;
 
   static const defaults = AppSettings(
     currencySymbol: 'USD',
@@ -24,6 +26,7 @@ class AppSettings {
     defaultFuelUnit: FuelUnit.liters,
     refillReminderInterval: 250,
     themePreset: AppThemePreset.arcticBlue,
+    languageCode: null,
   );
 
   AppSettings copyWith({
@@ -33,14 +36,20 @@ class AppSettings {
     FuelUnit? defaultFuelUnit,
     double? refillReminderInterval,
     AppThemePreset? themePreset,
+    String? languageCode,
+    bool clearLanguageCode = false,
   }) {
     return AppSettings(
       currencySymbol: currencySymbol ?? this.currencySymbol,
       decimalPrecision: decimalPrecision ?? this.decimalPrecision,
       defaultDistanceUnit: defaultDistanceUnit ?? this.defaultDistanceUnit,
       defaultFuelUnit: defaultFuelUnit ?? this.defaultFuelUnit,
-      refillReminderInterval: refillReminderInterval ?? this.refillReminderInterval,
+      refillReminderInterval:
+          refillReminderInterval ?? this.refillReminderInterval,
       themePreset: themePreset ?? this.themePreset,
+      languageCode: clearLanguageCode
+          ? null
+          : languageCode ?? this.languageCode,
     );
   }
 
@@ -52,6 +61,7 @@ class AppSettings {
       'defaultFuelUnit': defaultFuelUnit.name,
       'refillReminderInterval': refillReminderInterval,
       'themePreset': themePreset.name,
+      'languageCode': languageCode,
     };
   }
 
@@ -59,22 +69,45 @@ class AppSettings {
     final legacyDarkMode = map['darkMode'] as bool?;
 
     return AppSettings(
-      currencySymbol: map['currencySymbol'] as String? ?? defaults.currencySymbol,
-      decimalPrecision: (map['decimalPrecision'] as num?)?.toInt() ?? defaults.decimalPrecision,
-      defaultDistanceUnit: DistanceUnit.values.firstWhere((value) => value.name == map['defaultDistanceUnit'], orElse: () => defaults.defaultDistanceUnit),
-      defaultFuelUnit: FuelUnit.values.firstWhere((value) => value.name == map['defaultFuelUnit'], orElse: () => defaults.defaultFuelUnit),
-      refillReminderInterval: (map['refillReminderInterval'] as num?)?.toDouble() ?? defaults.refillReminderInterval,
-      themePreset: _parseThemePreset(map['themePreset'] as String?, legacyDarkMode: legacyDarkMode),
+      currencySymbol:
+          map['currencySymbol'] as String? ?? defaults.currencySymbol,
+      decimalPrecision:
+          (map['decimalPrecision'] as num?)?.toInt() ??
+          defaults.decimalPrecision,
+      defaultDistanceUnit: DistanceUnit.values.firstWhere(
+        (value) => value.name == map['defaultDistanceUnit'],
+        orElse: () => defaults.defaultDistanceUnit,
+      ),
+      defaultFuelUnit: FuelUnit.values.firstWhere(
+        (value) => value.name == map['defaultFuelUnit'],
+        orElse: () => defaults.defaultFuelUnit,
+      ),
+      refillReminderInterval:
+          (map['refillReminderInterval'] as num?)?.toDouble() ??
+          defaults.refillReminderInterval,
+      themePreset: _parseThemePreset(
+        map['themePreset'] as String?,
+        legacyDarkMode: legacyDarkMode,
+      ),
+      languageCode: map['languageCode'] as String?,
     );
   }
 
-  static AppThemePreset _parseThemePreset(String? value, {required bool? legacyDarkMode}) {
+  static AppThemePreset _parseThemePreset(
+    String? value, {
+    required bool? legacyDarkMode,
+  }) {
     if (value != null) {
-      return AppThemePreset.values.firstWhere((item) => item.name == value, orElse: () => defaults.themePreset);
+      return AppThemePreset.values.firstWhere(
+        (item) => item.name == value,
+        orElse: () => defaults.themePreset,
+      );
     }
 
     if (legacyDarkMode != null) {
-      return legacyDarkMode ? AppThemePreset.arcticBlue : AppThemePreset.oceanLight;
+      return legacyDarkMode
+          ? AppThemePreset.arcticBlue
+          : AppThemePreset.oceanLight;
     }
 
     return defaults.themePreset;

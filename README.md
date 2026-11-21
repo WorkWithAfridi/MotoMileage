@@ -103,6 +103,15 @@ Segmented dashboard with cards and charts:
 - First-launch onboarding flow (shown once)
 - 12 built-in theme presets (light and dark)
 
+### 8. Languages
+
+- Detects the device language automatically and falls back to English
+- Supports English, Simplified Chinese, Hindi, Spanish, French, Bengali,
+  Portuguese, Russian, and Indonesian
+- Allows an optional persisted language override from Settings
+- Localizes app UI, dialogs, validation, dates, numbers, exports, onboarding,
+  and the fuel and maintenance tips library
+
 ## Tech Stack
 
 ### Framework & Language
@@ -130,6 +139,7 @@ Segmented dashboard with cards and charts:
 - `fl_chart` for analytics charts
 - `flutter_staggered_grid_view` for dashboard layouts
 - `intl` for formatting
+- `flutter_localizations` for Material and platform localization support
 
 ## Architecture & Data Flow
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../localization/localized_text.dart';
+
 class AppDropdownFormField<T> extends StatefulWidget {
   const AppDropdownFormField({
     super.key,
@@ -29,7 +31,8 @@ class AppDropdownFormField<T> extends StatefulWidget {
   final bool isDense;
 
   @override
-  State<AppDropdownFormField<T>> createState() => _AppDropdownFormFieldState<T>();
+  State<AppDropdownFormField<T>> createState() =>
+      _AppDropdownFormFieldState<T>();
 }
 
 class _AppDropdownFormFieldState<T> extends State<AppDropdownFormField<T>> {
@@ -105,7 +108,7 @@ class _AppDropdownFormFieldState<T> extends State<AppDropdownFormField<T>> {
       autovalidateMode: widget.autovalidateMode,
       builder: (field) {
         final enabled = widget.onChanged != null && widget.items.isNotEmpty;
-        final decoration = (widget.decoration ?? const InputDecoration())
+        final decoration = (widget.decoration ?? InputDecoration())
             .applyDefaults(InputDecorationTheme.of(context))
             .copyWith(
               suffixIcon: Icon(
@@ -120,9 +123,10 @@ class _AppDropdownFormFieldState<T> extends State<AppDropdownFormField<T>> {
             .where((item) => item.value == field.value)
             .cast<DropdownMenuItem<T>?>()
             .firstOrNull;
-        final displayChild = selectedItem?.child ??
+        final displayChild =
+            selectedItem?.child ??
             (decoration.hintText != null
-                ? Text(
+                ? TrText(
                     decoration.hintText!,
                     style: textStyle?.copyWith(
                       color: colorScheme.onSurfaceVariant,
@@ -139,7 +143,10 @@ class _AppDropdownFormFieldState<T> extends State<AppDropdownFormField<T>> {
             isEmpty: selectedItem == null,
             isFocused: false,
             decoration: decoration,
-            child: DefaultTextStyle(style: textStyle ?? const TextStyle(), child: displayChild),
+            child: DefaultTextStyle(
+              style: textStyle ?? const TextStyle(),
+              child: displayChild,
+            ),
           ),
         );
       },

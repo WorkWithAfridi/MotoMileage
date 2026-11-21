@@ -44,7 +44,3 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Secrets (do not commit)
-/SECRET/
-/secret/
-/android/key.properties

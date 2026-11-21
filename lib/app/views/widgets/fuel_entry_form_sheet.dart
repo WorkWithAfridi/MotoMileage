@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../constants.dart';
@@ -93,7 +95,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                TrText(
                   widget.entry == null ? 'Quick Add Fuel' : 'Edit Fuel Entry',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
@@ -104,7 +106,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        TrText(
                           'Core Details',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
@@ -115,12 +117,12 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                             decimal: true,
                           ),
                           decoration: InputDecoration(
-                            labelText: 'Odometer',
+                            labelText: 'Odometer'.tx,
                             suffixText: distanceUnit,
                           ),
                           validator: (value) =>
                               (double.tryParse(value ?? '') == null)
-                              ? 'Invalid'
+                              ? 'Invalid'.tx
                               : null,
                         ),
                         const SizedBox(height: 18),
@@ -130,12 +132,12 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                             decimal: true,
                           ),
                           decoration: InputDecoration(
-                            labelText: 'Fuel Quantity',
+                            labelText: 'Fuel Quantity'.tx,
                             suffixText: fuelUnit,
                           ),
                           validator: (value) =>
                               (double.tryParse(value ?? '') == null)
-                              ? 'Invalid'
+                              ? 'Invalid'.tx
                               : null,
                         ),
                         const SizedBox(height: 18),
@@ -145,12 +147,12 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                             decimal: true,
                           ),
                           decoration: InputDecoration(
-                            labelText: 'Total Cost',
+                            labelText: 'Total Cost'.tx,
                             suffixText: currency,
                           ),
                           validator: (value) =>
                               (double.tryParse(value ?? '') == null)
-                              ? 'Invalid'
+                              ? 'Invalid'.tx
                               : null,
                         ),
                       ],
@@ -167,7 +169,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
+                              child: TrText(
                                 'Optional Details',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
@@ -181,7 +183,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                                     ? Icons.expand_less
                                     : Icons.expand_more,
                               ),
-                              label: Text(
+                              label: TrText(
                                 _showOptional
                                     ? 'Hide Optional'
                                     : 'Show Optional',
@@ -193,18 +195,18 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                           const SizedBox(height: 12),
                           AppDropdownFormField<FuelType?>(
                             initialValue: _fuelType,
-                            decoration: const InputDecoration(
-                              labelText: 'Fuel Type',
+                            decoration: InputDecoration(
+                              labelText: 'Fuel Type'.tx,
                             ),
                             items: [
                               const DropdownMenuItem<FuelType?>(
                                 value: null,
-                                child: Text('None'),
+                                child: TrText('None'),
                               ),
                               ...FuelType.values.map(
                                 (type) => DropdownMenuItem<FuelType?>(
                                   value: type,
-                                  child: Text(type.name),
+                                  child: TrText(type.name.toUpperCase()),
                                 ),
                               ),
                             ],
@@ -246,7 +248,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                                     controller: textEditingController,
                                     focusNode: focusNode,
                                     decoration: InputDecoration(
-                                      labelText: 'Station Name',
+                                      labelText: 'Station Name'.tx,
                                       prefixIcon: const Icon(Icons.search),
                                       helperText: stationHistory.isEmpty
                                           ? null
@@ -281,7 +283,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                                             Icons.local_gas_station_outlined,
                                             size: 18,
                                           ),
-                                          title: Text(option),
+                                          title: TrText(option),
                                           onTap: () => onSelected(option),
                                         );
                                       },
@@ -296,12 +298,10 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                             controller: _notesController,
                             minLines: 2,
                             maxLines: 4,
-                            decoration: const InputDecoration(
-                              labelText: 'Notes',
-                            ),
+                            decoration: InputDecoration(labelText: 'Notes'.tx),
                           ),
                         ] else
-                          Text(
+                          TrText(
                             'Tap "Show Optional" to add fuel type, station, and notes.',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
@@ -316,16 +316,16 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        TrText(
                           'Date & Actions',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 10),
                         Row(
                           children: [
-                            const Text('Date:'),
+                            const TrText('Date:'),
                             const SizedBox(width: 8),
-                            Text(
+                            TrText(
                               MaterialLocalizations.of(
                                 context,
                               ).formatMediumDate(_date),
@@ -345,7 +345,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                                   setState(() => _date = picked);
                                 }
                               },
-                              child: const Text('Pick Date'),
+                              child: const TrText('Pick Date'),
                             ),
                           ],
                         ),
@@ -394,7 +394,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                               if (!context.mounted) return;
                               Navigator.of(context).pop();
                             },
-                            child: Text(
+                            child: TrText(
                               widget.entry == null
                                   ? 'Save Entry'
                                   : 'Update Entry',
@@ -406,7 +406,7 @@ class _FuelEntryFormSheetState extends State<FuelEntryFormSheet> {
                           width: double.infinity,
                           child: OutlinedButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('Close'),
+                            child: const TrText('Close'),
                           ),
                         ),
                       ],

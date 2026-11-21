@@ -1,5 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+
+import '../localization/localized_text.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -261,11 +263,11 @@ class DashboardView extends GetView<DashboardController> {
                 child: Card(
                   color: colorScheme.tertiaryContainer,
                   child: ListTile(
-                    title: Text(
+                    title: TrText(
                       'Refill Reminder',
                       style: TextStyle(color: colorScheme.onTertiaryContainer),
                     ),
-                    subtitle: Text(
+                    subtitle: TrText(
                       'Your refill interval threshold has been crossed.',
                       style: TextStyle(color: colorScheme.onTertiaryContainer),
                     ),
@@ -317,7 +319,7 @@ class DashboardView extends GetView<DashboardController> {
               height: _chartHeight,
               child: Card(
                 child: expenseBars.isEmpty
-                    ? const Center(child: Text('Not enough data'))
+                    ? const Center(child: TrText('Not enough data'))
                     : Padding(
                         padding: const EdgeInsets.all(_chartCardPadding),
                         child: Column(
@@ -330,7 +332,7 @@ class DashboardView extends GetView<DashboardController> {
                                     child: Center(
                                       child: RotatedBox(
                                         quarterTurns: 3,
-                                        child: Text(
+                                        child: TrText(
                                           'Expense',
                                           style: Theme.of(
                                             context,
@@ -381,35 +383,37 @@ class DashboardView extends GetView<DashboardController> {
                                                   showTitles: true,
                                                   reservedSize:
                                                       _chartXAxisReservedSize,
-                                                  getTitlesWidget:
-                                                      (value, meta) {
-                                                        final index = value
-                                                            .toInt();
-                                                        if (index < 0 ||
-                                                            index >=
-                                                                expenseMonths
-                                                                    .length) {
-                                                          return const SizedBox.shrink();
-                                                        }
-                                                        final label =
-                                                            DateFormat('MMM')
-                                                                .format(
-                                                                  expenseMonths[index],
-                                                                )
-                                                                .toUpperCase();
-                                                        return Padding(
-                                                          padding:
-                                                              const EdgeInsets.only(
-                                                                top: _chartXLabelTopPadding,
-                                                              ),
-                                                          child: Text(
-                                                            label,
-                                                            style: Theme.of(
-                                                              context,
-                                                            ).textTheme.labelSmall,
+                                                  getTitlesWidget: (value, meta) {
+                                                    final index = value.toInt();
+                                                    if (index < 0 ||
+                                                        index >=
+                                                            expenseMonths
+                                                                .length) {
+                                                      return const SizedBox.shrink();
+                                                    }
+                                                    final label =
+                                                        DateFormat.MMM(
+                                                              Get.locale
+                                                                  ?.toLanguageTag(),
+                                                            )
+                                                            .format(
+                                                              expenseMonths[index],
+                                                            )
+                                                            .toUpperCase();
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            top:
+                                                                _chartXLabelTopPadding,
                                                           ),
-                                                        );
-                                                      },
+                                                      child: TrText(
+                                                        label,
+                                                        style: Theme.of(
+                                                          context,
+                                                        ).textTheme.labelSmall,
+                                                      ),
+                                                    );
+                                                  },
                                                 ),
                                               ),
                                             ),
@@ -432,7 +436,7 @@ class DashboardView extends GetView<DashboardController> {
                               ),
                             ),
                             const SizedBox(height: _fixedXAxisLabelTopSpacing),
-                            Text(
+                            TrText(
                               'Month',
                               style: Theme.of(context).textTheme.labelSmall,
                             ),
@@ -495,7 +499,7 @@ class DashboardView extends GetView<DashboardController> {
               child: Card(
                 clipBehavior: Clip.hardEdge,
                 child: fuelTypeSections.isEmpty
-                    ? const Center(child: Text('Not enough data'))
+                    ? const Center(child: TrText('Not enough data'))
                     : Padding(
                         padding: const EdgeInsets.all(_chartCardPadding),
                         child: Column(
@@ -537,7 +541,7 @@ class DashboardView extends GetView<DashboardController> {
                                           const SizedBox(
                                             width: _chartAxisLabelSpace,
                                           ),
-                                          Text(item.key),
+                                          TrText(item.key),
                                         ],
                                       ),
                                     )
@@ -550,7 +554,7 @@ class DashboardView extends GetView<DashboardController> {
               ),
             ),
             const SizedBox(height: _dashboardSectionSpacing),
-            Text(
+            TrText(
               'Fuel Station Snapshot',
               style: Theme.of(context).textTheme.titleMedium,
             ),
@@ -568,11 +572,11 @@ class DashboardView extends GetView<DashboardController> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: stationSnapshots.isEmpty
-                      ? const Text('No station-based entries yet.')
+                      ? const TrText('No station-based entries yet.')
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            TrText(
                               'Top stations by total spend',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
@@ -585,7 +589,7 @@ class DashboardView extends GetView<DashboardController> {
                                     child: Row(
                                       children: [
                                         Expanded(
-                                          child: Text(
+                                          child: TrText(
                                             item.station,
                                             style: Theme.of(context)
                                                 .textTheme
@@ -597,14 +601,14 @@ class DashboardView extends GetView<DashboardController> {
                                           ),
                                         ),
                                         const SizedBox(width: 8),
-                                        Text(
+                                        TrText(
                                           '${item.refills} refills',
                                           style: Theme.of(
                                             context,
                                           ).textTheme.bodySmall,
                                         ),
                                         const SizedBox(width: 10),
-                                        Text(
+                                        TrText(
                                           '$currency ${AppFormatters.number(item.totalCost, precision: precision)}',
                                           style: Theme.of(
                                             context,
@@ -614,7 +618,7 @@ class DashboardView extends GetView<DashboardController> {
                                     ),
                                   ),
                                 ),
-                            Text(
+                            TrText(
                               'Most used station: ${stationSnapshots.first.station}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
@@ -624,7 +628,7 @@ class DashboardView extends GetView<DashboardController> {
               ),
             ),
             const SizedBox(height: _dashboardSectionSpacing),
-            Text(
+            TrText(
               'Tip of the Day',
               style: Theme.of(context).textTheme.titleMedium,
             ),
@@ -642,14 +646,14 @@ class DashboardView extends GetView<DashboardController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      TrText(
                         tipOfTheDay.title,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 6),
-                      Text(
+                      TrText(
                         tipOfTheDay.description,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
@@ -701,7 +705,7 @@ class DashboardView extends GetView<DashboardController> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
+                    child: TrText(
                       title,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
@@ -709,14 +713,17 @@ class DashboardView extends GetView<DashboardController> {
                 ],
               ),
               const SizedBox(height: 10),
-              Text(description, style: Theme.of(context).textTheme.bodyMedium),
+              TrText(
+                description,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               const SizedBox(height: 12),
-              Text(
+              TrText(
                 'How this metric is derived',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 6),
-              Text(formula, style: Theme.of(context).textTheme.bodySmall),
+              TrText(formula, style: Theme.of(context).textTheme.bodySmall),
             ],
           ),
         ),
@@ -725,7 +732,7 @@ class DashboardView extends GetView<DashboardController> {
   }
 
   Widget _buildSegmentTitle(BuildContext context, String title) {
-    return Text(
+    return TrText(
       title,
       style: Theme.of(
         context,
@@ -762,7 +769,7 @@ class DashboardView extends GetView<DashboardController> {
           height: _chartHeight,
           child: Card(
             child: spots.isEmpty
-                ? const Center(child: Text('Not enough data'))
+                ? const Center(child: TrText('Not enough data'))
                 : Padding(
                     padding: const EdgeInsets.all(_chartCardPadding),
                     child: Column(
@@ -775,7 +782,7 @@ class DashboardView extends GetView<DashboardController> {
                                 child: Center(
                                   child: RotatedBox(
                                     quarterTurns: 3,
-                                    child: Text(
+                                    child: TrText(
                                       yAxisTitle,
                                       style: Theme.of(
                                         context,
@@ -832,16 +839,14 @@ class DashboardView extends GetView<DashboardController> {
                                                   entries: sourceEntries,
                                                 );
                                                 return Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        top:
-                                                            _chartXLabelTopPadding,
-                                                      ),
-                                                  child: Text(
+                                                  padding: const EdgeInsets.only(
+                                                    top: _chartXLabelTopPadding,
+                                                  ),
+                                                  child: TrText(
                                                     label,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .labelSmall,
+                                                    style: Theme.of(
+                                                      context,
+                                                    ).textTheme.labelSmall,
                                                   ),
                                                 );
                                               },
@@ -877,7 +882,7 @@ class DashboardView extends GetView<DashboardController> {
                           ),
                         ),
                         const SizedBox(height: _fixedXAxisLabelTopSpacing),
-                        Text(
+                        TrText(
                           'Month',
                           style: Theme.of(context).textTheme.labelSmall,
                         ),
@@ -899,7 +904,7 @@ class DashboardView extends GetView<DashboardController> {
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        TrText(title, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(width: 4),
         InkWell(
           borderRadius: BorderRadius.circular(10),
@@ -912,7 +917,7 @@ class DashboardView extends GetView<DashboardController> {
               color: colorScheme.surfaceContainerHighest,
               shape: BoxShape.circle,
             ),
-            child: Text(
+            child: TrText(
               '?',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
@@ -954,7 +959,7 @@ class DashboardView extends GetView<DashboardController> {
                 final alignY = 1 - (normalized * 2);
                 return Align(
                   alignment: Alignment(1, alignY.clamp(-1.0, 1.0)),
-                  child: Text(
+                  child: TrText(
                     value.toStringAsFixed(0),
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
@@ -1001,7 +1006,7 @@ class DashboardView extends GetView<DashboardController> {
     if (index < 0 ||
         index >= entries.length ||
         (value - index.toDouble()).abs() > 0.01) {
-      return '';
+      return ''.tx;
     }
 
     final current = entries[index].date;
@@ -1009,17 +1014,21 @@ class DashboardView extends GetView<DashboardController> {
     final isLast = index == entries.length - 1;
 
     if (isFirst || isLast) {
-      return DateFormat('MMM').format(current).toUpperCase();
+      return DateFormat.MMM(
+        Get.locale?.toLanguageTag(),
+      ).format(current).toUpperCase();
     }
 
     final previous = entries[index - 1].date;
     final changedMonth =
         current.month != previous.month || current.year != previous.year;
     if (!changedMonth) {
-      return '';
+      return ''.tx;
     }
 
-    return DateFormat('MMM').format(current).toUpperCase();
+    return DateFormat.MMM(
+      Get.locale?.toLanguageTag(),
+    ).format(current).toUpperCase();
   }
 
   List<PieChartSectionData> _fuelTypeSections({

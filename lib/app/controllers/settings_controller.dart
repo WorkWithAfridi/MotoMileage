@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../constants.dart';
@@ -50,5 +51,10 @@ class SettingsController extends GetxController {
 
   Future<void> updateThemePreset(AppThemePreset preset) {
     return updateSettings(settings.value.copyWith(themePreset: preset));
+  }
+
+  Future<void> updateLanguageCode(String languageCode) async {
+    await updateSettings(settings.value.copyWith(languageCode: languageCode));
+    await Get.updateLocale(Locale(languageCode));
   }
 }

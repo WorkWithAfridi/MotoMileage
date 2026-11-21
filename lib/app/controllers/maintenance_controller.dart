@@ -50,17 +50,63 @@ class MaintenanceController extends GetxController {
       return;
     }
 
+    final normalizedCustomType = type == MaintenanceType.custom
+        ? _emptyToNull(customType)
+        : null;
+    final normalizedNotes = _emptyToNull(notes);
+
     entries.add(
       MaintenanceEntry(
-      id: _uuid.v4(),
-      bikeId: bikeId,
+        id: _uuid.v4(),
+        bikeId: bikeId,
+        type: type,
+        customType: normalizedCustomType,
+        odometer: odometer,
+        date: date ?? DateTime.now(),
+        notes: normalizedNotes,
+        nextDueOdometer: nextDueOdometer,
+      ),
+    );
+    _sortNewestFirst(entries);
+    entries.refresh();
+
+    await _repository.saveEntries(bikeId, entries);
+  }
+
+  Future<void> updateEntry({
+    required String id,
+    required MaintenanceType type,
+    String? customType,
+    required double odometer,
+    required DateTime date,
+    String? notes,
+    double? nextDueOdometer,
+  }) async {
+    final bikeId = _bikeController.activeBikeId.value;
+    if (bikeId == null) {
+      return;
+    }
+
+    final index = entries.indexWhere((entry) => entry.id == id);
+    if (index == -1) {
+      return;
+    }
+
+    final normalizedCustomType = type == MaintenanceType.custom
+        ? _emptyToNull(customType)
+        : null;
+    final normalizedNotes = _emptyToNull(notes);
+
+    entries[index] = entries[index].copyWith(
       type: type,
-      customType: customType,
+      customType: normalizedCustomType,
+      clearCustomType: normalizedCustomType == null,
       odometer: odometer,
-      date: date ?? DateTime.now(),
-      notes: notes,
+      date: date,
+      notes: normalizedNotes,
+      clearNotes: normalizedNotes == null,
       nextDueOdometer: nextDueOdometer,
-    ),
+      clearNextDueOdometer: nextDueOdometer == null,
     );
     _sortNewestFirst(entries);
     entries.refresh();
@@ -82,9 +128,11 @@ class MaintenanceController extends GetxController {
 
   List<MaintenanceEntry> dueEntries(double currentOdometer) {
     return entries
-        .where((entry) =>
-            entry.nextDueOdometer != null &&
-            currentOdometer >= entry.nextDueOdometer!)
+        .where(
+          (entry) =>
+              entry.nextDueOdometer != null &&
+              currentOdometer >= entry.nextDueOdometer!,
+        )
         .toList();
   }
 
@@ -96,5 +144,10 @@ class MaintenanceController extends GetxController {
       }
       return b.odometer.compareTo(a.odometer);
     });
+  }
+
+  String? _emptyToNull(String? value) {
+    final trimmed = value?.trim() ?? '';
+    return trimmed.isEmpty ? null : trimmed;
   }
 }

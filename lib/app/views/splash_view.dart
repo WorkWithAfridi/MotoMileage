@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../localization/localized_text.dart';
+
 import '../utils/app_assets.dart';
 
 class SplashView extends StatefulWidget {
@@ -62,7 +64,7 @@ class _SplashViewState extends State<SplashView> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
+                TrText(
                   'Moto Mileage',
                   style: TextStyle(
                     color: colorScheme.onSurface,
@@ -71,7 +73,7 @@ class _SplashViewState extends State<SplashView> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
+                TrText(
                   'Track fuel. Ride smarter.',
                   style: TextStyle(
                     color: colorScheme.onSurface.withValues(alpha: 0.75),

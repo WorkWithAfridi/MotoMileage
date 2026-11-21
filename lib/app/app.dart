@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 
 import 'controllers/settings_controller.dart';
+import 'localization/app_translations.dart';
 import 'theme/app_theme.dart';
 import 'views/startup_gate_view.dart';
 
@@ -14,7 +16,13 @@ class MotoMileageApp extends StatelessWidget {
     final settingsController = Get.find<SettingsController>();
 
     return Obx(() {
-      final theme = AppTheme.fromPreset(settingsController.settings.value.themePreset);
+      final theme = AppTheme.fromPreset(
+        settingsController.settings.value.themePreset,
+      );
+      final locale = AppTranslations.resolveLocale(
+        settingsController.settings.value.languageCode,
+        Get.deviceLocale,
+      );
       final isDark = theme.brightness == Brightness.dark;
       final overlayStyle = SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -27,6 +35,11 @@ class MotoMileageApp extends StatelessWidget {
       );
       return GetMaterialApp(
         title: 'Moto Mileage',
+        translations: AppTranslations(),
+        locale: locale,
+        fallbackLocale: const Locale('en'),
+        supportedLocales: AppTranslations.supportedLocales,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         debugShowCheckedModeBanner: false,
         theme: theme,
         darkTheme: theme,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../constants.dart';
@@ -140,7 +142,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                     const Spacer(),
                     TextButton(
                       onPressed: _finishOnboarding,
-                      child: const Text('Skip'),
+                      child: const TrText('Skip'),
                     ),
                   ],
                 ),
@@ -167,7 +169,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                               color: item.color.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(999),
                             ),
-                            child: Text(
+                            child: TrText(
                               item.kicker.toUpperCase(),
                               style: Theme.of(context).textTheme.labelSmall
                                   ?.copyWith(
@@ -188,12 +190,12 @@ class _OnboardingViewState extends State<OnboardingView> {
                             child: Icon(item.icon, size: 70, color: item.color),
                           ),
                           const SizedBox(height: 32),
-                          Text(
+                          TrText(
                             item.title,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 14),
-                          Text(
+                          TrText(
                             item.description,
                             style: Theme.of(
                               context,
@@ -216,7 +218,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text(
+                                    child: TrText(
                                       point,
                                       style: Theme.of(
                                         context,

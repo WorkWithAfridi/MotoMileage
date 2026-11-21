@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../controllers/bike_controller.dart';
@@ -25,15 +27,20 @@ class _HomeShellViewState extends State<HomeShellView> {
   int _index = 0;
   final GlobalKey _bikeSelectorKey = GlobalKey();
 
-  static const _tabs = [DashboardView(), FuelLogsView(), MaintenanceView(), SettingsView()];
-
+  static const _tabs = [
+    DashboardView(),
+    FuelLogsView(),
+    MaintenanceView(),
+    SettingsView(),
+  ];
   Future<void> _showBikeSelectorMenu(
     BuildContext context, {
     required BikeController bikeController,
     required String? activeBikeId,
   }) async {
     final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final anchor = _bikeSelectorKey.currentContext?.findRenderObject() as RenderBox?;
+    final anchor =
+        _bikeSelectorKey.currentContext?.findRenderObject() as RenderBox?;
     if (anchor == null) return;
 
     final topLeft = anchor.localToGlobal(Offset.zero, ancestor: overlay);
@@ -71,7 +78,7 @@ class _HomeShellViewState extends State<HomeShellView> {
               value: bike.id,
               child: Row(
                 children: [
-                  Expanded(child: Text('${bike.name} (${bike.model})')),
+                  Expanded(child: TrText('${bike.name} (${bike.model})')),
                   if (bike.id == activeBikeId)
                     Icon(
                       Icons.check_rounded,
@@ -86,7 +93,7 @@ class _HomeShellViewState extends State<HomeShellView> {
     );
 
     if (selectedBikeId == null) return;
-    bikeController.setActiveBike(selectedBikeId);
+    await bikeController.setActiveBike(selectedBikeId);
   }
 
   @override
@@ -115,29 +122,49 @@ class _HomeShellViewState extends State<HomeShellView> {
                     activeBikeId: activeBike?.id,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 8,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Flexible(
-                          child: Text(
-                            activeBike == null ? 'Select Bike' : '${activeBike.name} (${activeBike.model})',
+                          child: TrText(
+                            activeBike == null
+                                ? 'Select Bike'
+                                : '${activeBike.name} (${activeBike.model})',
                             overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: colorScheme.onSurface),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: colorScheme.onSurface,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Icon(Icons.expand_more_rounded, color: colorScheme.primary),
+                        Icon(
+                          Icons.expand_more_rounded,
+                          color: colorScheme.primary,
+                        ),
                       ],
                     ),
                   ),
                 )
-              : const Text('Moto Mileage', style: TextStyle(fontWeight: FontWeight.w700)),
+              : const TrText(
+                  'Moto Mileage',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
           actions: [
             IconButton(
-              tooltip: 'Add Bike',
-              onPressed: () =>
-                  showModalBottomSheet<void>(context: context, showDragHandle: true, isScrollControlled: true, builder: (_) => const BikeFormSheet()),
+              tooltip: 'Add Bike'.tx,
+              onPressed: () {
+                showModalBottomSheet<void>(
+                  context: context,
+                  showDragHandle: true,
+                  isScrollControlled: true,
+                  builder: (_) => const BikeFormSheet(),
+                );
+              },
               icon: const Icon(Icons.add_circle_outline),
             ),
             if (activeBike != null)
@@ -158,7 +185,10 @@ class _HomeShellViewState extends State<HomeShellView> {
                     await bikeController.deleteBike(activeBike.id);
                   }
                 },
-                itemBuilder: (_) => const [PopupMenuItem(value: 'edit', child: Text('Edit Bike')), PopupMenuItem(value: 'delete', child: Text('Delete Bike'))],
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'edit', child: TrText('Edit Bike')),
+                  PopupMenuItem(value: 'delete', child: TrText('Delete Bike')),
+                ],
               ),
           ],
         ),
@@ -174,10 +204,13 @@ class _HomeShellViewState extends State<HomeShellView> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text('No bikes added yet.', style: Theme.of(context).textTheme.titleMedium),
+                            TrText(
+                              'No bikes added yet.',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
                             const SizedBox(height: 8),
-                            Text(
-                              'Add your first bike or load template data to explore the app quickly.',
+                            TrText(
+                              'Start fresh with a new bike or load demo data to explore the app.',
                               style: Theme.of(context).textTheme.bodyMedium,
                               textAlign: TextAlign.center,
                             ),
@@ -185,13 +218,15 @@ class _HomeShellViewState extends State<HomeShellView> {
                             SizedBox(
                               width: double.infinity,
                               child: FilledButton(
-                                onPressed: () => showModalBottomSheet<void>(
-                                  context: context,
-                                  showDragHandle: true,
-                                  isScrollControlled: true,
-                                  builder: (_) => const BikeFormSheet(),
-                                ),
-                                child: const Text('Add Your First Bike'),
+                                onPressed: () {
+                                  showModalBottomSheet<void>(
+                                    context: context,
+                                    showDragHandle: true,
+                                    isScrollControlled: true,
+                                    builder: (_) => const BikeFormSheet(),
+                                  );
+                                },
+                                child: const TrText('Add Your First Bike'),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -203,19 +238,19 @@ class _HomeShellViewState extends State<HomeShellView> {
                                   settingsController.reload();
                                   await bikeController.reload();
                                   await fuelController.reloadActiveBike();
-                                  await maintenanceController.reloadActiveBike();
+                                  await maintenanceController
+                                      .reloadActiveBike();
                                   if (!context.mounted) return;
-                                  Get.snackbar('Demo Loaded', 'Template dataset is ready. Explore the app.');
+                                  Get.snackbar(
+                                    'Demo Loaded'.tx,
+                                    'Template dataset is ready. Explore the app.'
+                                        .tx,
+                                  );
                                 },
-                                child: const Text('Load Template'),
+                                child: const TrText('Load Template'),
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Text(
-                              'You can also load/reset data later from Settings.',
-                              style: Theme.of(context).textTheme.bodySmall,
-                              textAlign: TextAlign.center,
-                            ),
                           ],
                         ),
                       ),
@@ -228,13 +263,19 @@ class _HomeShellViewState extends State<HomeShellView> {
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
                 transitionBuilder: (child, animation) {
-                  final offset = Tween<Offset>(begin: const Offset(0.02, 0), end: Offset.zero).animate(animation);
+                  final offset = Tween<Offset>(
+                    begin: const Offset(0.02, 0),
+                    end: Offset.zero,
+                  ).animate(animation);
                   return FadeTransition(
                     opacity: animation,
                     child: SlideTransition(position: offset, child: child),
                   );
                 },
-                child: KeyedSubtree(key: ValueKey(_index), child: _tabs[_index]),
+                child: KeyedSubtree(
+                  key: ValueKey(_index),
+                  child: _tabs[_index],
+                ),
               ),
         floatingActionButton: !hasBikes
             ? null
@@ -245,10 +286,7 @@ class _HomeShellViewState extends State<HomeShellView> {
                 layoutBuilder: (currentChild, previousChildren) {
                   return Stack(
                     alignment: Alignment.bottomRight,
-                    children: <Widget>[
-                      ...previousChildren,
-                      ?currentChild,
-                    ],
+                    children: <Widget>[...previousChildren, ?currentChild],
                   );
                 },
                 transitionBuilder: (child, animation) {
@@ -261,12 +299,30 @@ class _HomeShellViewState extends State<HomeShellView> {
               ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
-          onDestinationSelected: (value) => setState(() => _index = value),
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Dashboard'),
-            NavigationDestination(icon: Icon(Icons.local_gas_station_outlined), selectedIcon: Icon(Icons.local_gas_station), label: 'Fuel'),
-            NavigationDestination(icon: Icon(Icons.build_outlined), selectedIcon: Icon(Icons.build), label: 'Maintenance'),
-            NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'Settings'),
+          onDestinationSelected: (value) {
+            setState(() => _index = value);
+          },
+          destinations: [
+            NavigationDestination(
+              icon: Icon(Icons.dashboard_outlined),
+              selectedIcon: Icon(Icons.dashboard),
+              label: 'Dashboard'.tx,
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.local_gas_station_outlined),
+              selectedIcon: Icon(Icons.local_gas_station),
+              label: 'Fuel'.tx,
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.build_outlined),
+              selectedIcon: Icon(Icons.build),
+              label: 'Maintenance'.tx,
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.settings_outlined),
+              selectedIcon: Icon(Icons.settings),
+              label: 'Settings'.tx,
+            ),
           ],
         ),
       );
@@ -278,10 +334,16 @@ class _HomeShellViewState extends State<HomeShellView> {
       return FloatingActionButton.extended(
         key: const ValueKey('fuelFab'),
         heroTag: 'fuelFab',
-        onPressed: () =>
-            showModalBottomSheet<void>(context: context, showDragHandle: true, isScrollControlled: true, builder: (_) => const FuelEntryFormSheet()),
+        onPressed: () {
+          showModalBottomSheet<void>(
+            context: context,
+            showDragHandle: true,
+            isScrollControlled: true,
+            builder: (_) => const FuelEntryFormSheet(),
+          );
+        },
         icon: const Icon(Icons.local_gas_station_outlined),
-        label: const Text('Quick Add'),
+        label: const TrText('Quick Add'),
       );
     }
 
@@ -289,10 +351,16 @@ class _HomeShellViewState extends State<HomeShellView> {
       return FloatingActionButton.extended(
         key: const ValueKey('maintenanceFab'),
         heroTag: 'maintenanceFab',
-        onPressed: () =>
-            showModalBottomSheet<void>(context: context, showDragHandle: true, isScrollControlled: true, builder: (_) => const MaintenanceFormSheet()),
+        onPressed: () {
+          showModalBottomSheet<void>(
+            context: context,
+            showDragHandle: true,
+            isScrollControlled: true,
+            builder: (_) => const MaintenanceFormSheet(),
+          );
+        },
         icon: const Icon(Icons.build_circle_outlined),
-        label: const Text('Add Maintenance'),
+        label: const TrText('Add Maintenance'),
       );
     }
 
