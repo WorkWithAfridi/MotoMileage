@@ -1,7 +1,7 @@
 # Moto Mileage
 
 <div align="center">
-  <img src="assets/readme/project-cover.png" alt="Moto Mileage motorcycle with fuel and mileage analytics" width="100%" />
+  <img src="assets/readme/motomileage-cover.png" alt="Moto Mileage cover showing the dashboard and fuel log in phone mockups" width="100%" />
 
   <p><strong>A private, offline-first logbook for motorcycle fuel, mileage, costs, and maintenance.</strong></p>
 </div>
