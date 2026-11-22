@@ -1,273 +1,105 @@
-# Moto Mileage - Motorcycle Fuel Tracker & Maintenance Log (Flutter)
+# Moto Mileage
 
-Moto Mileage is an offline-first bike companion app that helps riders log fuel refills, track mileage and fuel costs, and manage maintenance schedules from one place.
+Moto Mileage is an offline-first motorcycle companion for tracking fuel, mileage, costs, and maintenance. Your records stay on your device in a local SQLite database. The app has no account, backend, or cloud sync.
 
-The app is built with Flutter and stores everything locally using SQLite, so it works without internet, account setup, or cloud sync.
+| Dashboard | Fuel history | Maintenance |
+| --- | --- | --- |
+| ![Moto Mileage dashboard running on iPhone 18 Pro simulator](assets/readme/iphone-18-pro-dashboard.png) | ![Moto Mileage fuel history](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.40.png) | ![Moto Mileage maintenance reminders](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.45.png) |
 
-Keywords: bike fuel tracker, motorcycle mileage tracker, bike maintenance app, fuel log app, mileage calculator, offline fuel expense tracker, Flutter motorcycle app.
+The dashboard screenshot was captured from a debug build running in the iPhone 18 Pro simulator. Fuel and maintenance screenshots are from the project’s iPhone 17 Pro promotional captures.
 
-## Table of Contents
+## Features
 
-- [Project Overview](#project-overview)
-- [App Screenshots](#app-screenshots)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Architecture & Data Flow](#architecture--data-flow)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Development Workflow](#development-workflow)
-- [Contributing](#contributing)
-- [Testing & Quality](#testing--quality)
-- [Planned Improvements](#planned-improvements)
+- **Multiple bikes:** Keep fuel and service history separate for each bike, and choose distance, fuel, and currency units.
+- **Fuel log:** Record odometer readings, refill quantity, cost, date, fuel type, station, and notes.
+- **Automatic calculations:** See trip distance, fuel economy, price per unit, and cost per distance. Later entries are recalculated when an earlier entry changes.
+- **Dashboard and reports:** Review performance, spending, refill patterns, station reports, and trends with charts.
+- **Maintenance log:** Record services and notes, set odometer-based due targets, and see due or overdue status.
+- **Local backup and export:** Export fuel logs as CSV, back up app data as JSON, and restore from a JSON backup.
+- **Demo data:** Load a sample dataset to explore the app.
+- **Themes and localization:** Choose from 12 light and dark theme presets. The interface supports English, Simplified Chinese, Hindi, Spanish, French, Bengali, Portuguese, Russian, and Indonesian.
 
-## Project Overview
+## Privacy and storage
 
-Moto Mileage focuses on practical day-to-day riding needs:
+Moto Mileage is designed to work offline. App records and preferences are stored locally in SQLite on the device. There is no sign-in, analytics SDK, backend, or cloud synchronization. CSV export and JSON backup use the device’s sharing and file-picking flows; sharing a file is initiated by the user.
 
-- Track every fuel refill with useful metadata
-- Calculate real-world mileage and cost trends automatically
-- Record service/maintenance activities and due targets
-- View dashboard analytics per bike
-- Export and back up data locally
+## Tech stack
 
-The core product goal is reliability and privacy for riders who prefer an offline, no-cloud workflow.
+- Flutter and Dart (`^3.10.7`)
+- Material 3
+- GetX for state management, routing, and dependency injection
+- SQLite via `sqflite`, with JSON payloads in a local key-value table
+- `fl_chart` and `flutter_staggered_grid_view` for dashboard visualization and layout
+- `intl`, `uuid`, `path`, `path_provider`, and `share_plus`
 
-## App Screenshots
+## Project structure
 
-Promotional screenshots from the latest app build:
-
-| Screenshot 1 | Screenshot 2 |
-| --- | --- |
-| ![Moto Mileage screenshot 1](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.14.png) | ![Moto Mileage screenshot 2](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.33.png) |
-
-| Screenshot 3 | Screenshot 4 |
-| --- | --- |
-| ![Moto Mileage screenshot 3](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.40.png) | ![Moto Mileage screenshot 4](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.45.png) |
-
-| Screenshot 5 | Screenshot 6 |
-| --- | --- |
-| ![Moto Mileage screenshot 5](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.51.png) | ![Moto Mileage screenshot 6](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.40.57.png) |
-
-| Screenshot 7 | Screenshot 8 |
-| --- | --- |
-| ![Moto Mileage screenshot 7](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.41.07.png) | ![Moto Mileage screenshot 8](assets/MotoMileage%20-%20Promotional%20Images/Simulator%20Screenshot%20-%20iPhone%2017%20Pro%20-%202026-03-03%20at%2009.41.20.png) |
-
-## Key Features
-
-### 1. Multi-Bike Management
-
-- Create, edit, and delete bikes
-- Switch active bike quickly from the app bar
-- Keep fuel and maintenance history isolated per bike
-- Configure measurement units for each bike
-
-### 2. Fuel Logging & Smart Calculations
-
-- Add, edit, and delete fuel entries
-- Optional fields: fuel type, station, notes, date
-- Auto-computed metrics:
-  - Trip distance
-  - Fuel efficiency (mileage)
-  - Cost per unit
-  - Cost per distance
-- Recalculation chain keeps subsequent entries consistent after edits/deletes
-
-### 3. Maintenance Tracking
-
-- Log maintenance records (oil, chain lube, custom)
-- Add next-due odometer values
-- See due/overdue visual status directly in cards
-
-### 4. Dashboard & Analytics
-
-Segmented dashboard with cards and charts:
-
-- `Performance`: average/latest/best/worst mileage + trend
-- `Cost & Spending`: monthly expense, recent cost behavior, cost-per-distance
-- `Fuel Profile`: refill patterns, fuel usage, fuel type distribution
-
-### 5. Reminders
-
-- Refill reminder based on configured interval
-- Maintenance due reminder from odometer progression
-
-### 6. Export, Backup, and Restore
-
-- CSV export for bike fuel logs
-- JSON backup of full app state
-- JSON restore from payload
-- Demo dataset loader for local testing and showcase
-
-### 7. Onboarding & Themes
-
-- First-launch onboarding flow (shown once)
-- 12 built-in theme presets (light and dark)
-
-### 8. Languages
-
-- Detects the device language automatically and falls back to English
-- Supports English, Simplified Chinese, Hindi, Spanish, French, Bengali,
-  Portuguese, Russian, and Indonesian
-- Allows an optional persisted language override from Settings
-- Localizes app UI, dialogs, validation, dates, numbers, exports, onboarding,
-  and the fuel and maintenance tips library
-
-## Tech Stack
-
-### Framework & Language
-
-- Flutter (Material 3)
-- Dart SDK `^3.10.7`
-
-### State, Routing, and DI
-
-- `get` (GetX) for state management, navigation, dependency injection
-
-### Local Storage & Data
-
-- `sqflite` for SQLite persistence
-- `path` for file/path helpers
-- `uuid` for unique IDs
-
-### Data Export & Sharing
-
-- `path_provider` for local file access
-- `share_plus` for share/export flows
-
-### UI & Visualization
-
-- `fl_chart` for analytics charts
-- `flutter_staggered_grid_view` for dashboard layouts
-- `intl` for formatting
-- `flutter_localizations` for Material and platform localization support
-
-## Architecture & Data Flow
-
-### Offline-First Design
-
-- No backend/API integration
-- No authentication dependency
-- All data and logic run locally on-device
-
-### Storage
-
-- App data persisted in SQLite
-- Key app preferences stored in `kv_store`, including:
-  - `active_bike_id`
-  - `settings`
-  - `onboarding_seen`
-
-### Layering
-
-- `views` handle UI rendering and interactions
-- `controllers` coordinate business logic and derived metrics
-- `repositories` provide persistence abstraction
-- `services` handle backup/export/storage utilities
-- `models` represent serializable domain objects
-
-## Project Structure
-
-- `lib/main.dart` - app entrypoint and startup initialization
-- `lib/app/app.dart` - root app widget and global bindings
-- `lib/app/bindings` - dependency graph setup
-- `lib/app/constants.dart` - app enums, constants, storage keys
-- `lib/app/models` - bike, fuel, maintenance, and settings models
-- `lib/app/repositories` - SQLite-backed repositories
-- `lib/app/services` - storage, export, backup, demo data services
-- `lib/app/controllers` - state and analytics logic
-- `lib/app/views` - screens, sheets, and reusable presentation widgets
-- `lib/app/theme` - theme presets and theme config
-- `lib/app/utils` - utility helpers
-
-## Getting Started
-
-### Prerequisites
-
-- Flutter SDK (stable channel)
-- Android Studio or VS Code with Flutter/Dart plugins
-- A connected device or emulator
-
-### Install Dependencies
-
-```bash
-flutter pub get
+```text
+lib/
+  main.dart                 App entry point
+  app/
+    bindings/               Dependency registration
+    constants.dart          Shared keys and domain enums
+    controllers/            App state and business logic
+    localization/           Translations and localized text
+    models/                 Serializable domain models
+    repositories/           Persistence abstractions
+    services/               SQLite, backup, export, and demo data
+    theme/                  Theme presets and app themes
+    views/                  Screens, forms, and reusable widgets
+    utils/                  Formatting and asset helpers
+test/                       Unit and widget tests
+assets/                     Store art, promotional screenshots, and icons
 ```
 
-### Run the App
+The app keeps views, controllers, repositories, services, and models separate. Bike-specific fuel and maintenance records are stored under keys scoped to the bike ID. When adding persistent user data, update backup and restore behavior as well as the relevant model and repository.
 
-```bash
+## Getting started
+
+### Requirements
+
+- Flutter stable with Dart SDK `^3.10.7`
+- Xcode for iOS builds and the iOS Simulator
+- Android Studio or an Android SDK for Android builds
+
+### Run locally
+
+```sh
+git clone https://github.com/WorkWithAfridi/MotoMileage.git
+cd MotoMileage
+flutter pub get
 flutter run
 ```
 
-### Build Release Artifacts
+To run on an iPhone simulator, start an available simulator and run:
 
-```bash
+```sh
+flutter devices
+flutter run -d <device-id>
+```
+
+### Build
+
+```sh
 flutter build apk
 flutter build appbundle
 flutter build ios
 ```
 
-## Development Workflow
+## Development
 
-1. Create a feature/fix branch from your main development branch.
-2. Implement focused changes with readable commits.
-3. Run formatting and checks locally.
-4. Verify behavior manually (fuel flow, maintenance flow, dashboard impact).
-5. Open a pull request with clear scope and screenshots for UI changes.
+Format Dart files and run static analysis and tests before opening a pull request:
 
-## Contributing
-
-Contributions are welcome for feature improvements, bug fixes, and documentation.
-
-### Contribution Guidelines
-
-1. Fork the repository and create a new branch.
-2. Keep each PR scoped to one logical change.
-3. Follow existing architecture patterns (`controllers` + `repositories` + `services`).
-4. Use clear naming and avoid unrelated refactors in the same PR.
-5. Add/update tests when business logic changes.
-6. Update README/docs when behavior or setup changes.
-
-### Commit Style (Recommended)
-
-Use concise commit messages such as:
-
-- `feat: add fuel entry validation for negative values`
-- `fix: recalculate mileage chain after fuel delete`
-- `docs: update setup and contribution guide`
-
-### Pull Request Checklist
-
-- [ ] App runs locally without regressions
-- [ ] `flutter analyze` passes
-- [ ] `flutter test` passes
-- [ ] UI changes validated on at least one real/simulated device
-- [ ] Docs updated if needed
-
-## Testing & Quality
-
-Run before opening a PR:
-
-```bash
-dart format .
+```sh
+dart format lib test
 flutter analyze
 flutter test
 ```
 
-Also test key journeys manually:
+For changes to fuel calculations, persistence, backup/restore, or deletion behavior, add or update targeted tests. For interface changes, check the relevant flows on a simulator or device and include screenshots in the pull request.
 
-- Add/edit/delete bike
-- Add/edit/delete fuel entries and metric recalculation
-- Add/delete maintenance records and due status updates
-- Backup/export and restore behavior
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidance and [SECURITY.md](SECURITY.md) for vulnerability reports.
 
-## Planned Improvements
+## License
 
-- More granular reminder configurations
-- Enhanced trend filters (time range presets)
-- Better import/export UX for larger datasets
-- Additional widget-level test coverage
-
----
-
-If you are publishing this repository publicly, keep the project title, description, and tags aligned with bike fuel tracking and motorcycle maintenance search terms for stronger discoverability.
+Moto Mileage is licensed under the [MIT License](LICENSE).
